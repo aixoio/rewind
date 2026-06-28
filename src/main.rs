@@ -4,5 +4,5 @@ use rewind::cli::Cli;
 fn main() {
     let cli = Cli::parse();
 
-    println!("running cli");
+    cli.command.run();
 }
