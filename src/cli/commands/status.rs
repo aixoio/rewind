@@ -1,3 +1,7 @@
+use crate::git::status::fetch_status;
+
 pub fn run() {
-    println!("Status");
+    let status = fetch_status().unwrap();
+
+    println!("{status:#?}");
 }
