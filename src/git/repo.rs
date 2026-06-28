@@ -41,3 +41,13 @@ pub fn commit(message: &str) -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub fn init_repo() -> anyhow::Result<()> {
+    let output = Command::new("git").arg("init").output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}

@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::cli::commands::{add, commit, status};
+use crate::cli::commands::{add, commit, init, status};
 
 mod commands;
 
@@ -16,12 +16,15 @@ pub enum Commands {
     #[command(alias = "s")]
     Status,
     #[command(alias = "ad")]
-    Add { paths: Option<Vec<String>> },
+    Add {
+        paths: Option<Vec<String>>,
+    },
     #[command(alias = "c")]
     Commit {
         #[arg(short, long)]
         message: Option<String>,
     },
+    Init,
 }
 
 impl Commands {
@@ -30,6 +33,7 @@ impl Commands {
             Commands::Status => status::run(),
             Commands::Add { paths } => add::run(paths),
             Commands::Commit { message } => commit::run(message),
+            Commands::Init => init::run(),
         }
     }
 }
