@@ -14,7 +14,7 @@ pub fn run() {
         return;
     }
 
-    if status.staged().len() != 0 {
+    if !status.staged().is_empty() {
         println!("{}", "Staged:".fg::<BlazeOrange>().bold());
 
         for file in status.staged() {
@@ -22,7 +22,7 @@ pub fn run() {
         }
     }
 
-    if status.unstaged().len() != 0 {
+    if !status.unstaged().is_empty() {
         println!("{}", "Unstaged:".fg::<BlazeOrange>().bold());
 
         for file in status.unstaged() {
@@ -30,7 +30,7 @@ pub fn run() {
         }
     }
 
-    if status.untracked().len() != 0 {
+    if !status.untracked().is_empty() {
         println!("{}", "Untracked:".fg::<BlazeOrange>().bold());
 
         for file in status.untracked() {
