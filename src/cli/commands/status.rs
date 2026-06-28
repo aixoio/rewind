@@ -1,5 +1,5 @@
 use crate::git::{repo::is_git_repo, status::fetch_status};
-use owo_colors::OwoColorize;
+use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
 
 pub fn run() {
     if !is_git_repo() {
@@ -15,7 +15,7 @@ pub fn run() {
     }
 
     if status.staged().len() != 0 {
-        println!("{}", "Staged:".bold());
+        println!("{}", "Staged:".fg::<BlazeOrange>().bold());
 
         for file in status.staged() {
             println!("     {}", file);
@@ -23,7 +23,7 @@ pub fn run() {
     }
 
     if status.unstaged().len() != 0 {
-        println!("{}", "Unstaged:".bold());
+        println!("{}", "Unstaged:".fg::<BlazeOrange>().bold());
 
         for file in status.unstaged() {
             println!("     {}", file);
@@ -31,7 +31,7 @@ pub fn run() {
     }
 
     if status.untracked().len() != 0 {
-        println!("{}", "Untracked:".bold());
+        println!("{}", "Untracked:".fg::<BlazeOrange>().bold());
 
         for file in status.untracked() {
             println!("     {}", file);
