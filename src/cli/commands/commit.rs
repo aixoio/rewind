@@ -1,6 +1,7 @@
 use inquire::{
     Text,
     ui::{Color, RenderConfig, StyleSheet},
+    validator::Validation,
 };
 use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
 
@@ -40,7 +41,20 @@ pub fn run(message: Option<String>) {
 
     inquire::set_global_render_config(style);
 
-    let message = message.unwrap_or_else(|| Text::new("commit message:").prompt().unwrap());
+    let message = message.unwrap_or_else(|| {
+        Text::new("commit message:")
+            .with_validator(|s: &str| {
+                if s.trim().is_empty() {
+                    Ok(Validation::Invalid(
+                        "You must enter a commit message".into(),
+                    ))
+                } else {
+                    Ok(Validation::Valid)
+                }
+            })
+            .prompt()
+            .unwrap()
+    });
 
     commit(&message).expect("faild to commit");
 
