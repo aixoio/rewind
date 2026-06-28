@@ -18,8 +18,8 @@ pub fn current_branch() -> anyhow::Result<String> {
         .to_string())
 }
 
-pub fn add_files(path: &String) -> anyhow::Result<()> {
-    let output = Command::new("git").arg("add").arg(path).output()?;
+pub fn add_paths(paths: &[String]) -> anyhow::Result<()> {
+    let output = Command::new("git").arg("add").args(paths).output()?;
 
     if !output.status.success() {
         return Err(anyhow!("error: non success exit code from git"));
