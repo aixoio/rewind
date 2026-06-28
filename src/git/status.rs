@@ -65,3 +65,13 @@ pub fn fetch_status() -> anyhow::Result<StatusResult> {
 
     Ok(result)
 }
+
+pub fn fetch_status_raw() -> anyhow::Result<String> {
+    let output = Command::new("git")
+        .arg("status")
+        .arg("--porcelain")
+        .output()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    Ok(stdout.to_string())
+}
