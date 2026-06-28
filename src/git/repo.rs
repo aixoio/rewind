@@ -27,3 +27,17 @@ pub fn add_paths(paths: &[String]) -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub fn commit(message: &str) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("commit")
+        .arg("-m")
+        .arg(message)
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
