@@ -1,6 +1,6 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 
-use crate::cli::commands::Commands;
+use crate::cli::commands::status;
 
 mod commands;
 
@@ -8,4 +8,17 @@ mod commands;
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
+}
+
+#[derive(Subcommand)]
+pub enum Commands {
+    Status,
+}
+
+impl Commands {
+    pub fn run(self) {
+        match self {
+            Commands::Status => status::run(),
+        }
+    }
 }
