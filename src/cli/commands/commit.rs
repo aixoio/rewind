@@ -49,7 +49,7 @@ pub fn run(message: Option<String>) {
     println!("{}", "Commit successful!".green().bold());
     println!(
         "{} {}",
-        "Message:".bright_black().bold().italic(),
+        "Message:".bright_black().bold(),
         message.bright_black().italic()
     );
 }
