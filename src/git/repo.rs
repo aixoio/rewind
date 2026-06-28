@@ -12,5 +12,8 @@ pub fn current_branch() -> anyhow::Result<String> {
         .arg("--show-current")
         .output()?;
 
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .to_string()
+        .trim()
+        .to_string())
 }

@@ -1,4 +1,7 @@
-use crate::git::{repo::is_git_repo, status::fetch_status};
+use crate::git::{
+    repo::{current_branch, is_git_repo},
+    status::fetch_status,
+};
 use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
 
 pub fn run() {
@@ -6,6 +9,11 @@ pub fn run() {
         eprintln!("{}", "Not a git repository".bright_red().bold());
         return;
     }
+
+    let branch = current_branch().expect("cannot get current branch");
+
+    println!("On branch {}", branch.bold());
+    println!();
 
     let status = fetch_status().expect("failed to fetch git status");
 
@@ -15,7 +23,7 @@ pub fn run() {
     }
 
     if !status.staged().is_empty() {
-        println!("{}", "Staged:".fg::<BlazeOrange>().bold());
+        println!("{}:", "Staged".fg::<BlazeOrange>().bold());
 
         for file in status.staged() {
             println!("     {}", file);
@@ -23,7 +31,7 @@ pub fn run() {
     }
 
     if !status.unstaged().is_empty() {
-        println!("{}", "Unstaged:".fg::<BlazeOrange>().bold());
+        println!("{}:", "Unstaged".fg::<BlazeOrange>().bold());
 
         for file in status.unstaged() {
             println!("     {}", file);
@@ -31,7 +39,7 @@ pub fn run() {
     }
 
     if !status.untracked().is_empty() {
-        println!("{}", "Untracked:".fg::<BlazeOrange>().bold());
+        println!("{}:", "Untracked".fg::<BlazeOrange>().bold());
 
         for file in status.untracked() {
             println!("     {}", file);
