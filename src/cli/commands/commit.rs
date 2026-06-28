@@ -44,10 +44,12 @@ pub fn run(message: Option<String>) {
 
     commit(&message).expect("faild to commit");
 
+    println!();
+
     println!("{}", "Commit successful!".green().bold());
     println!(
         "{} {}",
-        "Message".bright_black().bold().italic(),
+        "Message:".bright_black().bold().italic(),
         message.bright_black().italic()
     );
 }
