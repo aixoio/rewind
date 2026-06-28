@@ -5,6 +5,7 @@ use crate::cli::commands::status;
 mod commands;
 
 #[derive(Parser)]
+#[command(version)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
