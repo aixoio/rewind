@@ -48,9 +48,9 @@ pub fn run(limit: Option<usize>, show_all: bool) {
 
     let status = fetch_status();
 
-    if let Ok(status) = status {
-        if status.total_files() != 0 {
-            println!("{}", "Uncommitted changes".yellow().bold());
-        }
+    if let Ok(status) = status
+        && status.total_files() != 0
+    {
+        println!("{}", "Uncommitted changes".yellow().bold());
     }
 }
