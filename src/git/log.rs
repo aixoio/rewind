@@ -23,6 +23,32 @@ impl Commit {
     getter!(date, String);
     getter!(refs, Vec<String>);
     getter!(subject, String);
+
+    fn build(
+        hash: String,
+        date: String,
+        refs: Vec<String>,
+        subject: String,
+    ) -> anyhow::Result<Commit> {
+        if hash.trim().is_empty() {
+            return Err(anyhow!("missing hash"));
+        }
+
+        if date.trim().is_empty() {
+            return Err(anyhow!("missing date"));
+        }
+
+        if subject.trim().is_empty() {
+            return Err(anyhow!("missing subject"));
+        }
+
+        Ok(Commit {
+            hash,
+            date,
+            refs,
+            subject,
+        })
+    }
 }
 
 pub fn fetch_log() -> anyhow::Result<Vec<Commit>> {
@@ -86,24 +112,7 @@ fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
             .trim()
             .to_string();
 
-        let commit = Commit {
-            hash,
-            date,
-            refs,
-            subject,
-        };
-
-        if commit.hash.trim().is_empty() {
-            return Err(anyhow!("missing hash"));
-        }
-
-        if commit.date.trim().is_empty() {
-            return Err(anyhow!("missing date"));
-        }
-
-        if commit.subject.trim().is_empty() {
-            return Err(anyhow!("missing subject"));
-        }
+        let commit = Commit::build(hash, date, refs, subject)?;
 
         commits.push(commit);
     }
