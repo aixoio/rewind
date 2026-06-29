@@ -63,24 +63,27 @@ fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
         let hash = fields
             .next()
             .ok_or_else(|| anyhow!("missing hash"))?
+            .trim()
             .to_string();
 
         let date = fields
             .next()
             .ok_or_else(|| anyhow!("missing date"))?
+            .trim()
             .to_string();
 
         let refs: Vec<_> = fields
             .next()
             .ok_or_else(|| anyhow!("missing refs"))?
             .split(", ")
-            .map(|i| i.to_string())
+            .map(|i| i.trim().to_string())
             .filter(|i| !i.is_empty())
             .collect();
 
         let subject = fields
             .next()
             .ok_or_else(|| anyhow!("missing subject"))?
+            .trim()
             .to_string();
 
         let commit = Commit {

@@ -33,6 +33,8 @@ pub enum Commands {
     Log {
         #[arg(short, long)]
         limit: Option<usize>,
+        #[arg(long)]
+        show_all: bool,
     },
 }
 
@@ -45,7 +47,7 @@ impl Commands {
             Commands::Init => init::run(),
             Commands::Push => push::run(),
             Commands::Pull => pull::run(),
-            Commands::Log { limit } => log::run(limit),
+            Commands::Log { limit, show_all } => log::run(limit, show_all),
         }
     }
 }

@@ -1,7 +1,39 @@
-use crate::git::log::fetch_log;
+use crate::git::{
+    log::{fetch_log, fetch_log_with_limit},
+    repo::is_git_repo,
+};
 
-pub fn run(limit: Option<usize>) {
-    let log = fetch_log().unwrap();
-    println!("log..");
-    println!("{log:#?}");
+use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
+
+pub fn run(limit: Option<usize>, show_all: bool) {
+    if !is_git_repo() {
+        eprintln!("{}", "Not a git repository".bright_red().bold());
+        return;
+    }
+
+    let limit = limit.unwrap_or(10);
+
+    let commits = if show_all {
+        fetch_log()
+    } else {
+        fetch_log_with_limit(limit)
+    };
+    let commits = commits.expect("failed to fetch commits");
+
+    println!("{}", "Git log".fg::<BlazeOrange>().bold());
+    println!();
+
+    for commit in commits.iter().rev() {
+        let short_hash = &commit.hash()[..6];
+        if commit.refs().is_empty() {
+            println!("{} {}", short_hash.bright_black(), commit.subject().bold());
+        } else {
+            println!(
+                "{} {} {}",
+                short_hash.bright_black(),
+                commit.refs().join(", ").magenta(),
+                commit.subject().bold()
+            );
+        }
+    }
 }
