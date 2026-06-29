@@ -39,3 +39,14 @@ pub fn push_set_upstream() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+/// invokes `git push`
+pub fn push() -> anyhow::Result<()> {
+    let output = Command::new("git").arg("push").output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
