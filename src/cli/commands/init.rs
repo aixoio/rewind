@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 
 pub fn run() {
     if is_git_repo() {
-        println!("{}", "Reinitialized existing Git repository");
+        println!("Reinitialized existing Git repository");
     }
 
     init_repo().expect("faild to initialize git repo");
