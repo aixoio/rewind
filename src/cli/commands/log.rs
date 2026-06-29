@@ -1,6 +1,6 @@
 use crate::git::{
     log::{fetch_log, fetch_log_with_limit},
-    repo::is_git_repo,
+    repo::{current_branch, is_git_repo},
 };
 
 use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
@@ -21,6 +21,10 @@ pub fn run(limit: Option<usize>, show_all: bool) {
     let commits = commits.expect("failed to fetch commits");
 
     println!("{}", "Git log".fg::<BlazeOrange>().bold());
+
+    let branch = current_branch().expect("cannot get current branch");
+
+    println!("On branch {}", branch.bold());
     println!();
 
     for commit in commits.iter().rev() {
