@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use anyhow::anyhow;
 
@@ -31,6 +31,8 @@ pub fn push_set_upstream() -> anyhow::Result<()> {
         .arg("--set-upstream")
         .arg("origin")
         .arg("HEAD")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .output()?;
 
     if !output.status.success() {
@@ -42,7 +44,11 @@ pub fn push_set_upstream() -> anyhow::Result<()> {
 
 /// invokes `git push`
 pub fn push() -> anyhow::Result<()> {
-    let output = Command::new("git").arg("push").output()?;
+    let output = Command::new("git")
+        .arg("push")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
 
     if !output.status.success() {
         return Err(anyhow!("error: non success exit code from git"));
