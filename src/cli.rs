@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::cli::commands::{add, commit, init, pull, push, status};
+use crate::cli::commands::{add, commit, init, log, pull, push, status};
 
 mod commands;
 
@@ -29,6 +29,8 @@ pub enum Commands {
         message: Option<String>,
     },
     Init,
+    #[command(alias = "l")]
+    Log,
 }
 
 impl Commands {
@@ -40,6 +42,7 @@ impl Commands {
             Commands::Init => init::run(),
             Commands::Push => push::run(),
             Commands::Pull => pull::run(),
+            Commands::Log => log::run(),
         }
     }
 }
