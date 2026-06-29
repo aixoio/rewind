@@ -1,6 +1,7 @@
 use crate::git::{
     log::{fetch_log, fetch_log_with_limit},
     repo::{current_branch, is_git_repo},
+    status::fetch_status,
 };
 
 use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
@@ -22,13 +23,17 @@ pub fn run(limit: Option<usize>, show_all: bool) {
 
     println!("{}", "Git log".fg::<BlazeOrange>().bold());
 
-    let branch = current_branch().expect("cannot get current branch");
+    let branch = current_branch();
 
-    println!("On branch {}", branch.bold());
+    if let Ok(branch) = branch {
+        println!("On branch {}", branch.bold());
+    }
+
     println!();
 
     for commit in commits.iter().rev() {
         let short_hash = &commit.hash()[..6];
+
         if commit.refs().is_empty() {
             println!("{} {}", short_hash.bright_black(), commit.subject().bold());
         } else {
@@ -38,6 +43,14 @@ pub fn run(limit: Option<usize>, show_all: bool) {
                 commit.refs().join(", ").magenta(),
                 commit.subject().bold()
             );
+        }
+    }
+
+    let status = fetch_status();
+
+    if let Ok(status) = status {
+        if status.total_files() != 0 {
+            println!("{}", "Uncommitted changes".yellow().bold());
         }
     }
 }
