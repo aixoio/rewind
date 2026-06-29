@@ -30,7 +30,10 @@ pub enum Commands {
     },
     Init,
     #[command(alias = "l")]
-    Log,
+    Log {
+        #[arg(short, long)]
+        limit: Option<usize>,
+    },
 }
 
 impl Commands {
@@ -42,7 +45,7 @@ impl Commands {
             Commands::Init => init::run(),
             Commands::Push => push::run(),
             Commands::Pull => pull::run(),
-            Commands::Log => log::run(),
+            Commands::Log { limit } => log::run(limit),
         }
     }
 }
