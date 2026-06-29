@@ -1,5 +1,7 @@
 use std::process::Command;
 
+use anyhow::anyhow;
+
 pub fn upstream() -> Option<String> {
     let Ok(output) = Command::new("git")
         .arg("rev-parse")
@@ -18,4 +20,22 @@ pub fn upstream() -> Option<String> {
     }
 
     Some(stdout.to_string())
+}
+
+/// sets the upstream to origin HEAD
+///
+/// invokes `git push --set-upstream origin HEAD`
+pub fn push_set_upstream() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("push")
+        .arg("--set-upstream")
+        .arg("origin")
+        .arg("HEAD")
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
 }
