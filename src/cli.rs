@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::cli::commands::{add, commit, init, push, status};
+use crate::cli::commands::{add, commit, init, pull, push, status};
 
 mod commands;
 
@@ -15,6 +15,8 @@ pub struct Cli {
 pub enum Commands {
     #[command(alias = "p")]
     Push,
+    #[command(alias = "pu")]
+    Pull,
     #[command(alias = "s")]
     Status,
     #[command(alias = "ad")]
@@ -37,6 +39,7 @@ impl Commands {
             Commands::Commit { message } => commit::run(message),
             Commands::Init => init::run(),
             Commands::Push => push::run(),
+            Commands::Pull => pull::run(),
         }
     }
 }
