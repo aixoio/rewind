@@ -36,6 +36,19 @@ pub fn fetch_log() -> anyhow::Result<Vec<Commit>> {
     parse_format_string(&stdout)
 }
 
+pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<Vec<Commit>> {
+    let output = Command::new("git")
+        .arg("log")
+        .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
+        .arg("-n")
+        .arg(limit.to_string())
+        .output()?;
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    parse_format_string(&stdout)
+}
+
 /// commits must follow the format git log --pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e
 fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
     let mut commits = Vec::new();
