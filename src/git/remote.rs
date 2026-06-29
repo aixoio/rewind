@@ -56,3 +56,38 @@ pub fn push() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+/// sets the upstream to origin HEAD
+///
+/// invokes `git pull --set-upstream origin HEAD`
+pub fn pull_set_upstream() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("pull")
+        .arg("--set-upstream")
+        .arg("origin")
+        .arg("HEAD")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
+
+/// invokes `git pull`
+pub fn pull() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("pull")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
