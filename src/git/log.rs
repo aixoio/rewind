@@ -198,4 +198,11 @@ mod tests {
 
         assert!(parse_format_string(example).is_err());
     }
+
+    #[test]
+    fn test_log_parser_garbage_input() {
+        let exmaple = "123456NMHIYUGVJ{}[][vpdfkvfpovjfhue]]\\\x1e\x1e\x1e";
+
+        assert!(parse_format_string(exmaple).is_err());
+    }
 }
