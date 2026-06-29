@@ -9,18 +9,18 @@ pub struct StatusResult {
     untracked: Vec<String>,
 }
 
+macro_rules! getter {
+    ($name:ident, $type:ty) => {
+        pub fn $name(&self) -> &$type {
+            &self.$name
+        }
+    };
+}
+
 impl StatusResult {
-    pub fn staged(&self) -> &Vec<String> {
-        &self.staged
-    }
-
-    pub fn unstaged(&self) -> &Vec<String> {
-        &self.unstaged
-    }
-
-    pub fn untracked(&self) -> &Vec<String> {
-        &self.untracked
-    }
+    getter!(staged, Vec<String>);
+    getter!(unstaged, Vec<String>);
+    getter!(untracked, Vec<String>);
 
     pub fn total_files(&self) -> usize {
         self.staged.len() + self.unstaged.len() + self.untracked.len()
