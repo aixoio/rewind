@@ -6,11 +6,16 @@ use inquire::{
 use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
 
 use crate::git::{
-    repo::{add_paths, commit},
+    repo::{add_paths, commit, is_git_repo},
     status::fetch_status_raw,
 };
 
 pub fn run(message: Option<String>) {
+    if !is_git_repo() {
+        eprintln!("{}", "Not a git repository".bright_red().bold());
+        return;
+    }
+
     println!();
 
     if message.is_none() {
