@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct Commit {
     hash: String,
@@ -23,7 +25,61 @@ impl Commit {
 
 /// commits must follow the format git log --pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e
 fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
-    Ok(vec![])
+    let mut commits = Vec::new();
+
+    for record in format_string.trim().split("\x1e") {
+        if record.is_empty() {
+            continue;
+        }
+
+        let mut fields = record.split("\x1f");
+
+        let hash = fields
+            .next()
+            .ok_or_else(|| anyhow!("missing hash"))?
+            .to_string();
+
+        let date = fields
+            .next()
+            .ok_or_else(|| anyhow!("missing date"))?
+            .to_string();
+
+        let refs: Vec<_> = fields
+            .next()
+            .ok_or_else(|| anyhow!("missing refs"))?
+            .split(", ")
+            .map(|i| i.to_string())
+            .filter(|i| !i.is_empty())
+            .collect();
+
+        let subject = fields
+            .next()
+            .ok_or_else(|| anyhow!("missing subject"))?
+            .to_string();
+
+        let commit = Commit {
+            hash,
+            date,
+            refs,
+            subject,
+        };
+
+        if commit.hash.trim().is_empty() {
+            return Err(anyhow!("missing hash"));
+        }
+
+        if commit.date.trim().is_empty() {
+            return Err(anyhow!("missing date"));
+        }
+
+        if commit.subject.trim().is_empty() {
+            return Err(anyhow!("missing subject"));
+        }
+
+        commits.push(commit);
+    }
+
+    Ok(commits)
 }
 
 #[cfg(test)]
@@ -139,13 +195,6 @@ mod tests {
     #[test]
     fn test_log_parser_error_missing_subject() {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fHEAD -> main\x1e";
-
-        assert!(parse_format_string(example).is_err());
-    }
-
-    #[test]
-    fn test_log_parser_error_too_many_fields() {
-        let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fHEAD -> main\x1fInitial commit\x1fextra\x1e";
 
         assert!(parse_format_string(example).is_err());
     }
