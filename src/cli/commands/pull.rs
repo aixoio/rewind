@@ -5,7 +5,7 @@ use owo_colors::OwoColorize;
 pub fn run() {
     match remote::upstream() {
         Some(_) => {
-            println!("{}", "Pulling changes to remote...".blue());
+            println!("{}", "Pulling changes from remote...".blue());
 
             remote::pull().expect("failed to pull upstream");
 
