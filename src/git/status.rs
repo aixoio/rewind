@@ -34,36 +34,7 @@ pub fn fetch_status() -> anyhow::Result<StatusResult> {
         .output()?;
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    let mut result = StatusResult {
-        staged: vec![],
-        unstaged: vec![],
-        untracked: vec![],
-    };
-
-    for line in stdout.lines() {
-        let file_name: String = line.chars().skip(3).collect();
-
-        if line.starts_with("??") {
-            result.untracked.push(file_name);
-            continue;
-        }
-
-        if !line.starts_with(" ") && !line.starts_with("?") {
-            result.staged.push(file_name);
-            continue;
-        }
-
-        let staged_char: String = line.chars().skip(1).collect();
-
-        if (staged_char.starts_with("M") || staged_char.starts_with("D"))
-            && !result.staged.contains(&file_name)
-        {
-            result.unstaged.push(file_name);
-            continue;
-        }
-    }
-
-    Ok(result)
+    Ok(parse_status(&stdout))
 }
 
 pub fn fetch_status_raw() -> anyhow::Result<String> {
@@ -74,4 +45,12 @@ pub fn fetch_status_raw() -> anyhow::Result<String> {
     let stdout = String::from_utf8_lossy(&output.stdout);
 
     Ok(stdout.to_string())
+}
+
+fn parse_status(status: &str) -> StatusResult {
+    StatusResult {
+        staged: vec![],
+        unstaged: vec![],
+        untracked: vec![],
+    }
 }
