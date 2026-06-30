@@ -4,7 +4,7 @@ use crate::git::{
     status::fetch_status,
 };
 
-use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
+use owo_colors::OwoColorize;
 
 pub fn run(limit: Option<usize>, show_all: bool) {
     if !is_git_repo() {
@@ -21,7 +21,7 @@ pub fn run(limit: Option<usize>, show_all: bool) {
     };
     let commits = commits.expect("failed to fetch commits");
 
-    println!("{}", "Git log".fg::<BlazeOrange>().bold());
+    println!("{}", "Git log".cyan().bold());
 
     let branch = current_branch();
 
