@@ -9,6 +9,21 @@ pub fn current_branch() -> anyhow::Result<String> {
     Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
+pub fn all_branches() -> anyhow::Result<Vec<String>> {
+    let output = Command::new("git")
+        .arg("--no-pager")
+        .arg("branch")
+        .arg("--list")
+        .arg("--format=%(refname:short)")
+        .output()?;
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    Ok(parse_branch_names(&stdout)
+        .iter()
+        .map(|b| b.to_string())
+        .collect())
+}
+
 /// must be used with `git --no-pager branch --list --format='%(refname:short)'`
 fn parse_branch_names(stdout: &str) -> Vec<&str> {
     stdout
