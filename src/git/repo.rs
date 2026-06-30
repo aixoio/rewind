@@ -1,4 +1,7 @@
-use std::{path::Path, process::Command};
+use std::{
+    path::Path,
+    process::{Command, Stdio},
+};
 
 use anyhow::anyhow;
 
@@ -54,6 +57,9 @@ pub fn diff() -> anyhow::Result<()> {
         .arg("--no-pager")
         .arg("diff")
         .arg("--color=always")
+        .stderr(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .stdin(Stdio::inherit())
         .output()?;
 
     if !output.status.success() {
