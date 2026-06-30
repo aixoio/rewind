@@ -41,7 +41,7 @@ pub fn run(limit: Option<usize>, show_all: bool) {
                 "{} {} {}",
                 short_hash.bright_black(),
                 commit.subject().bold(),
-                commit.refs().join(", ").magenta(),
+                commit.refs().join(", ").blue(),
             );
         }
     }
