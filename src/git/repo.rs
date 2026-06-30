@@ -48,3 +48,17 @@ pub fn init_repo() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub fn diff() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("--no-pager")
+        .arg("diff")
+        .arg("--color=always")
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
