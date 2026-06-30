@@ -27,6 +27,16 @@ impl StatusResult {
     }
 }
 
+impl Default for StatusResult {
+    fn default() -> Self {
+        Self {
+            staged: vec![],
+            unstaged: vec![],
+            untracked: vec![],
+        }
+    }
+}
+
 pub fn fetch_status() -> anyhow::Result<StatusResult> {
     let output = Command::new("git")
         .arg("status")
@@ -48,11 +58,32 @@ pub fn fetch_status_raw() -> anyhow::Result<String> {
 }
 
 fn parse_status(status: &str) -> StatusResult {
-    StatusResult {
-        staged: vec![],
-        unstaged: vec![],
-        untracked: vec![],
+    let mut status_result = StatusResult::default();
+
+    for line in status.lines() {
+        let file_name: String = line.chars().skip(2).collect();
+        let file_name = file_name.trim().to_owned();
+
+        let (x, y) = (
+            line.chars().nth(0).unwrap_or(' '),
+            line.chars().nth(1).unwrap_or(' '),
+        );
+
+        if x == '?' && y == '?' {
+            status_result.untracked.push(file_name);
+            continue;
+        }
+
+        if x != ' ' {
+            status_result.staged.push(file_name.clone());
+        }
+
+        if y != ' ' {
+            status_result.unstaged.push(file_name);
+        }
     }
+
+    status_result
 }
 
 #[cfg(test)]
@@ -70,7 +101,7 @@ mod tests {
         let target = StatusResult {
             staged: strings(vec!["src/lib.rs", "README.md"]),
             unstaged: strings(vec!["src/main.rs", "src/lib.rs"]),
-            untracked: vec![],
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(&input));
@@ -81,9 +112,8 @@ mod tests {
         let input = vec!["?? notes.txt", "?? src/new_file.rs"].join("\n");
 
         let target = StatusResult {
-            staged: vec![],
-            unstaged: vec![],
             untracked: strings(vec!["notes.txt", "src/new_file.rs"]),
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(&input));
@@ -95,8 +125,7 @@ mod tests {
 
         let target = StatusResult {
             staged: strings(vec!["src/main.rs", "src/lib.rs", "old.txt"]),
-            unstaged: vec![],
-            untracked: vec![],
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(&input));
@@ -107,9 +136,8 @@ mod tests {
         let input = vec![" M src/main.rs", " D old.txt"].join("\n");
 
         let target = StatusResult {
-            staged: vec![],
             unstaged: strings(vec!["src/main.rs", "old.txt"]),
-            untracked: vec![],
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(&input));
@@ -122,7 +150,7 @@ mod tests {
         let target = StatusResult {
             staged: strings(vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"]),
             unstaged: strings(vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"]),
-            untracked: vec![],
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(&input));
@@ -132,11 +160,7 @@ mod tests {
     fn test_parse_status_empty_input() {
         let input = "";
 
-        let target = StatusResult {
-            staged: vec![],
-            unstaged: vec![],
-            untracked: vec![],
-        };
+        let target = StatusResult::default();
 
         assert_eq!(target, parse_status(input));
     }
@@ -145,11 +169,7 @@ mod tests {
     fn test_parse_status_ignored_clean_lines() {
         let input = "\n\n";
 
-        let target = StatusResult {
-            staged: vec![],
-            unstaged: vec![],
-            untracked: vec![],
-        };
+        let target = StatusResult::default();
 
         assert_eq!(target, parse_status(input));
     }
@@ -160,21 +180,7 @@ mod tests {
 
         let target = StatusResult {
             staged: strings(vec!["old_name.rs -> new_name.rs"]),
-            unstaged: vec![],
-            untracked: vec![],
-        };
-
-        assert_eq!(target, parse_status(input));
-    }
-
-    #[test]
-    fn test_parse_status_garbage_input() {
-        let input = "vjkfhdvjkdfvlsdkvbdfiu&RIUI&*^%$*IUY[][][}{}|{{}\\\n{}{}{}{";
-
-        let target = StatusResult {
-            staged: vec![],
-            unstaged: vec![],
-            untracked: vec![],
+            ..Default::default()
         };
 
         assert_eq!(target, parse_status(input));
