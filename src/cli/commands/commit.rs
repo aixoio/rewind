@@ -3,7 +3,7 @@ use inquire::{
     ui::{Color, RenderConfig, StyleSheet},
     validator::Validation,
 };
-use owo_colors::{OwoColorize, colors::xterm::BlazeOrange};
+use owo_colors::OwoColorize;
 
 use crate::git::{
     repo::{add_paths, commit, is_git_repo},
@@ -21,13 +21,13 @@ pub fn run(message: Option<String>) {
     if message.is_none() {
         add_paths(&[".".to_string()]).expect("cannot add paths");
 
-        println!("{}", "Staged all files".green());
+        println!("{}", "Staged all files".blue());
         println!();
     }
 
     let raw_status = fetch_status_raw().expect("cannot fetch status");
 
-    println!("{}:", "Files to be committed".fg::<BlazeOrange>().bold());
+    println!("{}:", "Files to be committed".bright_green().bold());
 
     for line in raw_status.lines() {
         println!("     {line}");
@@ -65,10 +65,10 @@ pub fn run(message: Option<String>) {
 
     println!();
 
-    println!("{}", "Commit successful!".green().bold());
+    println!("{}", "Commit successful!".bright_green().bold());
     println!(
         "{} {}",
         "Message:".bright_black().bold(),
-        message.bright_black().italic()
+        message.bright_black()
     );
 }
