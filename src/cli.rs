@@ -1,6 +1,6 @@
 use clap::{Parser, Subcommand};
 
-use crate::cli::commands::{add, commit, diff, init, log, pull, push, status};
+use crate::cli::commands::{add, branch, commit, diff, init, log, pull, push, status};
 
 mod commands;
 
@@ -38,6 +38,8 @@ pub enum Commands {
     },
     #[command(alias = "d")]
     Diff,
+    #[command(alias = "b")]
+    Branch,
 }
 
 impl Commands {
@@ -51,6 +53,7 @@ impl Commands {
             Commands::Pull => pull::run(),
             Commands::Log { limit, show_all } => log::run(limit, show_all),
             Commands::Diff => diff::run(),
+            Commands::Branch => branch::run(),
         }
     }
 }
