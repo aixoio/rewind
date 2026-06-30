@@ -2,7 +2,7 @@ use std::process::Command;
 
 use anyhow::Ok;
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Default)]
 pub struct StatusResult {
     staged: Vec<String>,
     unstaged: Vec<String>,
@@ -24,16 +24,6 @@ impl StatusResult {
 
     pub fn total_files(&self) -> usize {
         self.staged.len() + self.unstaged.len() + self.untracked.len()
-    }
-}
-
-impl Default for StatusResult {
-    fn default() -> Self {
-        Self {
-            staged: vec![],
-            unstaged: vec![],
-            untracked: vec![],
-        }
     }
 }
 
@@ -65,7 +55,7 @@ fn parse_status(status: &str) -> StatusResult {
         let file_name = file_name.trim().to_owned();
 
         let (x, y) = (
-            line.chars().nth(0).unwrap_or(' '),
+            line.chars().next().unwrap_or(' '),
             line.chars().nth(1).unwrap_or(' '),
         );
 
