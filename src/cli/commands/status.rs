@@ -1,7 +1,4 @@
-use crate::git::{
-    repo::{current_branch, is_git_repo},
-    status::fetch_status,
-};
+use crate::git::{branch::current_branch, repo::is_git_repo, status::fetch_status};
 use owo_colors::OwoColorize;
 
 pub fn run() {

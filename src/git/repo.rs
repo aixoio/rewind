@@ -9,15 +9,6 @@ pub fn is_git_repo() -> bool {
     Path::new(".git").exists()
 }
 
-pub fn current_branch() -> anyhow::Result<String> {
-    let output = Command::new("git")
-        .arg("branch")
-        .arg("--show-current")
-        .output()?;
-
-    Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
-}
-
 pub fn add_paths(paths: &[String]) -> anyhow::Result<()> {
     let output = Command::new("git").arg("add").args(paths).output()?;
 

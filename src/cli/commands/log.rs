@@ -1,6 +1,7 @@
 use crate::git::{
+    branch::current_branch,
     log::{fetch_log, fetch_log_with_limit},
-    repo::{current_branch, is_git_repo},
+    repo::is_git_repo,
     status::fetch_status,
 };
 
