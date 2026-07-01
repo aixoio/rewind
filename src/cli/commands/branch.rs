@@ -47,6 +47,26 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
 }
 
 fn branch_delete(name: String, remote: bool) {
+    let Ok(current_branch) = current_branch() else {
+        eprintln!("{}", "cannot get current branch".bright_red().bold());
+        return;
+    };
+
+    if name.trim() == current_branch.trim() {
+        eprintln!("{}", "cannot delete current branch".bright_red().bold());
+        return;
+    }
+
+    if !branch_exists(&name) {
+        eprintln!(
+            "{}",
+            "cannot delete branch as it does not exist"
+                .bright_red()
+                .bold()
+        );
+        return;
+    }
+
     let message = if remote {
         format!("You are sure you want to delete the remote branch {name}?")
     } else {
