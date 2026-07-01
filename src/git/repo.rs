@@ -13,7 +13,10 @@ pub fn add_paths(paths: &[String]) -> anyhow::Result<()> {
     let output = Command::new("git").arg("add").args(paths).output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -27,7 +30,10 @@ pub fn commit(message: &str) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -37,7 +43,10 @@ pub fn init_repo() -> anyhow::Result<()> {
     let output = Command::new("git").arg("init").output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -54,7 +63,10 @@ pub fn diff() -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())

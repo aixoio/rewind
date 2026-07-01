@@ -36,7 +36,10 @@ pub fn push_set_upstream() -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -51,7 +54,10 @@ pub fn push() -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -71,7 +77,10 @@ pub fn pull_set_upstream() -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
@@ -86,7 +95,10 @@ pub fn pull() -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
