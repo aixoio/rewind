@@ -1,4 +1,4 @@
-use crate::git::repo::is_git_repo;
+use crate::git::repo::{self, is_git_repo};
 
 use owo_colors::OwoColorize;
 
@@ -8,5 +8,9 @@ pub fn run(target: String) {
         return;
     }
 
-    println!("target: {target}");
+    println!("{} {}", "Checking out".cyan().bold(), target.blue());
+
+    repo::checkout(&target).expect("cannot checkout");
+
+    println!("{}", "Checkout successful!".bright_green().bold());
 }

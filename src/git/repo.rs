@@ -64,7 +64,10 @@ pub fn checkout(target: &str) -> anyhow::Result<()> {
     let output = Command::new("git").arg("checkout").arg(target).output()?;
 
     if !output.status.success() {
-        return Err(anyhow!("error: non success exit code from git"));
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
 
     Ok(())
