@@ -24,6 +24,21 @@ pub fn all_branches() -> anyhow::Result<Vec<String>> {
         .collect())
 }
 
+/// wraps `git show-ref --verify --quiet refs/heads/{branch}`
+pub fn branch_exists(branch: &str) -> bool {
+    let Ok(output) = Command::new("git")
+        .arg("show-ref")
+        .arg("--verify")
+        .arg("--quiet")
+        .arg(format!("refs/heads/{branch}"))
+        .output()
+    else {
+        return false;
+    };
+
+    output.status.success()
+}
+
 /// must be used with `git --no-pager branch --list --format='%(refname:short)'`
 fn parse_branch_names(stdout: &str) -> Vec<&str> {
     stdout
