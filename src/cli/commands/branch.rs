@@ -1,3 +1,4 @@
+use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 use crate::git::{
@@ -38,8 +39,22 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
     };
 
     match sub_command {
-        BranchCommands::Delete { name, remote } => println!("deleteing branch {name} {remote:?}"),
+        BranchCommands::Delete { name, remote } => branch_delete(name, remote),
     }
+}
+
+fn branch_delete(name: String, remote: bool) {
+    let message = if remote {
+        format!("You are sure you want to delete the remote branch {name}?")
+    } else {
+        format!("You are sure you want to delete the branch {name}?")
+    };
+    let check = Confirm::new(&message).with_default(false).prompt().unwrap();
+    if !check {
+        return;
+    }
+
+    println!("{} {}", "Deleting branch".green(), name);
 }
 
 fn branch_list() {
