@@ -54,6 +54,41 @@ pub fn create_branch(branch: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn delete_branch(branch: &str) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("branch")
+        .arg("-d")
+        .arg(branch.trim())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn delete_remote_branch(branch: &str) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("push")
+        .arg("origin")
+        .arg("--delete")
+        .arg(branch.trim())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
 /// must be used with `git --no-pager branch --list --format='%(refname:short)'`
 fn parse_branch_names(stdout: &str) -> Vec<&str> {
     stdout
