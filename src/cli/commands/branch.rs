@@ -1,7 +1,7 @@
 use owo_colors::OwoColorize;
 
 use crate::git::{
-    branch::{all_branches, current_branch},
+    branch::{all_branches, branch_exists, current_branch},
     repo::is_git_repo,
 };
 
@@ -24,8 +24,7 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
     }
 
     if let Some(name) = name {
-        // create or switch to that branch
-        println!("creating or switching to {name}");
+        branch_create_or_switch(name);
         return;
     }
 
@@ -61,5 +60,21 @@ fn branch_list() {
         }
 
         println!("     {}", branch);
+    }
+}
+
+fn branch_create_or_switch(name: String) {
+    let Ok(current_branch) = current_branch() else {
+        eprintln!("{}", "cannot get current branch".bright_red().bold());
+        return;
+    };
+
+    println!("On branch {}", current_branch.bold());
+    println!();
+
+    if branch_exists(&name.trim()) {
+        println!("switching to {name}");
+    } else {
+        println!("creating and swtiching to {name}");
     }
 }
