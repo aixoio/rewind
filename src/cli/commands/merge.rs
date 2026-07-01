@@ -1,11 +1,16 @@
 use crate::git::{
     branch::{branch_exists, current_branch},
-    repo::{checkout, merge},
+    repo::{checkout, is_git_repo, merge},
 };
 
 use owo_colors::OwoColorize;
 
 pub fn run(source: String, target: String) {
+    if !is_git_repo() {
+        eprintln!("{}", "Not a git repository".bright_red().bold());
+        return;
+    }
+
     if !branch_exists(&source) {
         eprintln!(
             "{} {} {}",
