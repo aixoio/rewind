@@ -33,7 +33,7 @@ fn branch_list() {
     println!("{}", "Branches:".blue().bold());
     for branch in branches {
         if branch == current_branch {
-            println!("     {}", branch.cyan().bold());
+            println!("   * {}", branch.cyan().bold());
             continue;
         }
 
