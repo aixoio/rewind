@@ -2,7 +2,7 @@ use owo_colors::OwoColorize;
 
 use crate::git::{
     branch::{all_branches, branch_exists, current_branch},
-    repo::is_git_repo,
+    repo::{self, is_git_repo},
 };
 
 use clap::Subcommand;
@@ -73,7 +73,9 @@ fn branch_create_or_switch(name: String) {
     println!();
 
     if branch_exists(&name.trim()) {
-        println!("switching to {name}");
+        repo::checkout(&name.trim()).expect("cannnot checkout target");
+
+        println!("{} {}", "Switched to branch:".green(), name.trim().bold());
     } else {
         println!("creating and swtiching to {name}");
     }
