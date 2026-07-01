@@ -72,8 +72,8 @@ fn branch_create_or_switch(name: String) {
     println!("On branch {}", current_branch.bold());
     println!();
 
-    if branch_exists(&name.trim()) {
-        repo::checkout(&name.trim()).expect("cannnot checkout target");
+    if branch_exists(name.trim()) {
+        repo::checkout(name.trim()).expect("cannnot checkout target");
 
         println!("{} {}", "Switched to branch:".green(), name.trim().bold());
     } else {
