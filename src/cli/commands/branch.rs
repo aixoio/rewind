@@ -2,7 +2,10 @@ use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 use crate::git::{
-    branch::{all_branches, branch_exists, create_branch, current_branch},
+    branch::{
+        all_branches, branch_exists, create_branch, current_branch, delete_branch,
+        delete_remote_branch,
+    },
     repo::{self, is_git_repo},
 };
 
@@ -55,6 +58,14 @@ fn branch_delete(name: String, remote: bool) {
     }
 
     println!("{} {}", "Deleting branch".green(), name);
+
+    if remote {
+        delete_remote_branch(&name).expect("cannot delete remote branch");
+    } else {
+        delete_branch(&name).expect("cannot delete branch");
+    }
+
+    println!("{} {}", "Deleted branch:".green(), name.trim().bold());
 }
 
 fn branch_list() {
