@@ -11,6 +11,10 @@ pub fn run() {
         return;
     }
 
+    branch_list();
+}
+
+fn branch_list() {
     let Ok(current_branch) = current_branch() else {
         eprintln!("{}", "cannot get current branch".bright_red().bold());
         return;
