@@ -24,9 +24,7 @@ pub fn run(limit: Option<usize>, show_all: bool) {
 
     println!("{}", "Git log".cyan().bold());
 
-    let branch = current_branch();
-
-    if let Ok(branch) = branch {
+    if let Ok(branch) = current_branch() {
         println!("On branch {}", branch.bold());
     }
 
