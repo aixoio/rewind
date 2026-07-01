@@ -5,14 +5,37 @@ use crate::git::{
     repo::is_git_repo,
 };
 
-pub fn run(name: Option<String>) {
+use clap::Subcommand;
+
+#[derive(Subcommand)]
+pub enum BranchCommands {
+    Delete { name: String },
+}
+
+pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
     if !is_git_repo() {
         eprintln!("{}", "Not a git repository".bright_red().bold());
         return;
     }
 
-    if name.is_none() {
+    if name.is_none() && sub_command.is_none() {
         branch_list();
+        return;
+    }
+
+    if let Some(name) = name {
+        // create or switch to that branch
+        println!("creating or switching to {name}");
+        return;
+    }
+
+    let Some(sub_command) = sub_command else {
+        eprintln!("{}", "invalid args".bold().bright_red());
+        return;
+    };
+
+    match sub_command {
+        BranchCommands::Delete { name } => println!("deleteing branch {name}"),
     }
 }
 

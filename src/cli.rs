@@ -1,6 +1,10 @@
 use clap::{Parser, Subcommand};
 
-use crate::cli::commands::{add, branch, commit, diff, init, log, pull, push, status};
+use crate::cli::commands::{
+    add,
+    branch::{self, BranchCommands},
+    commit, diff, init, log, pull, push, status,
+};
 
 mod commands;
 
@@ -41,6 +45,8 @@ pub enum Commands {
     #[command(alias = "b")]
     Branch {
         name: Option<String>,
+        #[command(subcommand)]
+        sub_command: Option<BranchCommands>,
     },
 }
 
@@ -55,7 +61,7 @@ impl Commands {
             Commands::Pull => pull::run(),
             Commands::Log { limit, show_all } => log::run(limit, show_all),
             Commands::Diff => diff::run(),
-            Commands::Branch { name } => branch::run(name),
+            Commands::Branch { name, sub_command } => branch::run(name, sub_command),
         }
     }
 }
