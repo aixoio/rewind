@@ -9,7 +9,11 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum BranchCommands {
-    Delete { name: String },
+    Delete {
+        name: String,
+        #[arg(long)]
+        remote: bool,
+    },
 }
 
 pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
@@ -34,7 +38,7 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
     };
 
     match sub_command {
-        BranchCommands::Delete { name } => println!("deleteing branch {name}"),
+        BranchCommands::Delete { name, remote } => println!("deleteing branch {name} {remote:?}"),
     }
 }
 
