@@ -1,5 +1,7 @@
 use std::process::Command;
 
+use anyhow::anyhow;
+
 pub fn current_branch() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("branch")
@@ -37,6 +39,19 @@ pub fn branch_exists(branch: &str) -> bool {
     };
 
     output.status.success()
+}
+
+pub fn create_branch(branch: &str) -> anyhow::Result<()> {
+    let output = Command::new("git").arg("branch").arg(branch).output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
 }
 
 /// must be used with `git --no-pager branch --list --format='%(refname:short)'`
