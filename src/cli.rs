@@ -39,7 +39,9 @@ pub enum Commands {
     #[command(alias = "d")]
     Diff,
     #[command(alias = "b")]
-    Branch,
+    Branch {
+        name: Option<String>,
+    },
 }
 
 impl Commands {
@@ -53,7 +55,7 @@ impl Commands {
             Commands::Pull => pull::run(),
             Commands::Log { limit, show_all } => log::run(limit, show_all),
             Commands::Diff => diff::run(),
-            Commands::Branch => branch::run(),
+            Commands::Branch { name } => branch::run(name),
         }
     }
 }

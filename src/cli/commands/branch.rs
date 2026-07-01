@@ -5,13 +5,15 @@ use crate::git::{
     repo::is_git_repo,
 };
 
-pub fn run() {
+pub fn run(name: Option<String>) {
     if !is_git_repo() {
         eprintln!("{}", "Not a git repository".bright_red().bold());
         return;
     }
 
-    branch_list();
+    if name.is_none() {
+        branch_list();
+    }
 }
 
 fn branch_list() {
