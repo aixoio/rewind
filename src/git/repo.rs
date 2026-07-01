@@ -59,3 +59,13 @@ pub fn diff() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub fn checkout(target: &str) -> anyhow::Result<()> {
+    let output = Command::new("git").arg("checkout").arg(target).output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!("error: non success exit code from git"));
+    }
+
+    Ok(())
+}
