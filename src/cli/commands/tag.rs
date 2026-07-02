@@ -1,10 +1,40 @@
 use clap::Subcommand;
 
+use owo_colors::OwoColorize;
+
+use crate::git::{
+    repo::is_git_repo,
+    tag::{fetch_all_tags, parse_git_tags},
+};
+
 #[derive(Subcommand, Debug)]
 pub enum TagCommand {
     List,
 }
 
 pub fn run(command: TagCommand) {
-    println!("{:?}", command);
+    if !is_git_repo() {
+        eprintln!("{}", "Not a git repository".bright_red().bold());
+        return;
+    }
+
+    match command {
+        TagCommand::List => list_tags(),
+    }
+}
+
+fn list_tags() {
+    println!("{}", "Tags:".blue().bold());
+
+    let stdout = fetch_all_tags().expect("failed to fetch all tags");
+    let tags = parse_git_tags(&stdout);
+
+    for tag in tags {
+        println!(
+            "     {} ({})",
+            tag.name().bold(),
+            tag.relative_date().bright_black()
+        );
+        println!("        {}", tag.subject().cyan());
+    }
 }
