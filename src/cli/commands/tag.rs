@@ -1,10 +1,11 @@
 use clap::Subcommand;
 
+use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 use crate::git::{
     repo::is_git_repo,
-    tag::{create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags},
+    tag::{self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags},
 };
 
 #[derive(Subcommand, Debug)]
@@ -34,7 +35,22 @@ pub fn run(command: TagCommand) {
 }
 
 fn delete_tag(name: String) {
-    todo!()
+    println!("{} {}", "Deleting tag:".green(), name.green().bold());
+
+    let help_message = format!("Are you sure you want to delete tag {}?", name);
+    let check = Confirm::new("Confirm Tag Deletion")
+        .with_help_message(&help_message)
+        .with_default(false)
+        .prompt()
+        .unwrap();
+    if !check {
+        return;
+    }
+
+    tag::delete_tag(&name).expect("failed to delete tag");
+
+    println!("{}", "Deleted tag successfully!".bright_green(),);
+    println!("{} {}", "Tag:".bright_black(), name.bold());
 }
 
 fn create_tag(name: String, message: Option<String>) {

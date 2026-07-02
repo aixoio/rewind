@@ -77,6 +77,23 @@ pub fn create_lightweight_tag(name: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn delete_tag(name: &str) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("tag")
+        .arg("-d")
+        .arg(name)
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
 pub fn create_annotated_tag(name: &str, message: &str) -> anyhow::Result<()> {
     let output = Command::new("git")
         .arg("tag")
