@@ -41,6 +41,10 @@ impl<'a> Tag<'a> {
     }
 }
 
+pub fn fetch_all_tags<'a>() -> anyhow::Result<Vec<Tag<'a>>> {
+    Ok(vec![])
+}
+
 /// input must be from the `git --no-pager tag -l --sort=-creatordate --format='%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e'` command
 fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
     let mut tags = Vec::new();
