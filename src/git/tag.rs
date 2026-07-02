@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use anyhow::anyhow;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -41,12 +43,30 @@ impl<'a> Tag<'a> {
     }
 }
 
-pub fn fetch_all_tags<'a>() -> anyhow::Result<Vec<Tag<'a>>> {
-    Ok(vec![])
+pub fn fetch_all_tags() -> anyhow::Result<String> {
+    let output = Command::new("git")
+        .arg("--no-pager")
+        .arg("tag")
+        .arg("-l")
+        .arg("--sort=-creatordate")
+        .arg("--format=%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e")
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+
+    Ok(stdout.to_string())
 }
 
 /// input must be from the `git --no-pager tag -l --sort=-creatordate --format='%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e'` command
-fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
+/// or from fetch_all_tags()
+pub fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
     let mut tags = Vec::new();
 
     for line in format_string.split("\x1e") {
