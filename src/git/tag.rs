@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct Tag<'a> {
     name: &'a str,
@@ -17,11 +19,62 @@ impl<'a> Tag<'a> {
     getter!(name, &'a str);
     getter!(relative_date, &'a str);
     getter!(subject, &'a str);
+
+    fn build(name: &'a str, relative_date: &'a str, subject: &'a str) -> anyhow::Result<Tag<'a>> {
+        if name.trim().is_empty() {
+            return Err(anyhow!("missing name"));
+        }
+
+        if relative_date.trim().is_empty() {
+            return Err(anyhow!("missing date"));
+        }
+
+        if subject.trim().is_empty() {
+            return Err(anyhow!("missing subject"));
+        }
+
+        Ok(Tag {
+            name,
+            relative_date,
+            subject,
+        })
+    }
 }
 
 /// input must be from the `git --no-pager tag -l --sort=-creatordate --format='%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e'` command
 fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
-    vec![]
+    let mut tags = Vec::new();
+
+    for line in format_string.split("\x1e") {
+        if line.trim().is_empty() {
+            continue;
+        }
+
+        let mut formated_line = line.trim().split("\x1f");
+
+        let Some(name) = formated_line.next() else {
+            continue;
+        };
+        let name = name.trim();
+
+        let Some(relative_date) = formated_line.next() else {
+            continue;
+        };
+        let relative_date = relative_date.trim();
+
+        let Some(subject) = formated_line.next() else {
+            continue;
+        };
+        let subject = subject.trim();
+
+        let Ok(tag) = Tag::build(name, relative_date, subject) else {
+            continue;
+        };
+
+        tags.push(tag);
+    }
+
+    tags
 }
 
 #[cfg(test)]
@@ -95,7 +148,16 @@ mod tests {
     fn skips_a_record_with_too_many_fields() {
         let input = "v1.0.0\x1fyesterday\x1fRelease\x1funexpected\x1e";
 
-        assert!(parse_git_tags(input).is_empty());
+        let tags = parse_git_tags(input);
+
+        assert_eq!(
+            tags,
+            vec![Tag {
+                name: "v1.0.0",
+                relative_date: "yesterday",
+                subject: "Release",
+            }]
+        );
     }
 
     #[test]
@@ -124,14 +186,7 @@ mod tests {
 
         let tags = parse_git_tags(input);
 
-        assert_eq!(
-            tags,
-            vec![Tag {
-                name: "",
-                relative_date: "",
-                subject: "",
-            }]
-        );
+        assert!(tags.is_empty());
     }
 
     #[test]
