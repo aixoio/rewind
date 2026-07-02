@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use anyhow::anyhow;
 
@@ -66,6 +66,25 @@ pub fn fetch_all_tags() -> anyhow::Result<String> {
 
 pub fn create_lightweight_tag(name: &str) -> anyhow::Result<()> {
     let output = Command::new("git").arg("tag").arg(name).output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
+pub fn push_all_tags() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("push")
+        .arg("--tags")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .stdin(Stdio::inherit())
+        .output()?;
 
     if !output.status.success() {
         return Err(anyhow!(

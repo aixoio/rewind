@@ -5,7 +5,10 @@ use owo_colors::OwoColorize;
 
 use crate::git::{
     repo::is_git_repo,
-    tag::{self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags},
+    tag::{
+        self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
+        push_all_tags,
+    },
 };
 
 #[derive(Subcommand, Debug)]
@@ -19,6 +22,7 @@ pub enum TagCommand {
     Delete {
         name: String,
     },
+    Push,
 }
 
 pub fn run(command: TagCommand) {
@@ -31,7 +35,16 @@ pub fn run(command: TagCommand) {
         TagCommand::List => list_tags(),
         TagCommand::Create { name, message } => create_tag(name, message),
         TagCommand::Delete { name } => delete_tag(name),
+        TagCommand::Push => push_tags(),
     }
+}
+
+fn push_tags() {
+    println!("{}", "Pushing all tags".green());
+
+    push_all_tags().expect("cannot push all tags");
+
+    println!("{}", "All tags pushed!".bright_green(),);
 }
 
 fn delete_tag(name: String) {
