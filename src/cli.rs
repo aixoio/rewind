@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 use crate::cli::commands::{
     add,
     branch::{self, BranchCommands},
-    checkout, commit, diff, init, log, merge, pull, push, status,
+    checkout, commit, diff, init, log, merge, pull, push, reset, status,
 };
 
 mod commands;
@@ -57,6 +57,7 @@ pub enum Commands {
     Checkout {
         target: String,
     },
+    Reset,
 }
 
 impl Commands {
@@ -73,6 +74,7 @@ impl Commands {
             Commands::Branch { name, sub_command } => branch::run(name, sub_command),
             Commands::Merge { source, target } => merge::run(source, target),
             Commands::Checkout { target } => checkout::run(target),
+            Commands::Reset => reset::run(),
         }
     }
 }
