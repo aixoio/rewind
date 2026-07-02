@@ -64,6 +64,19 @@ pub fn fetch_all_tags() -> anyhow::Result<String> {
     Ok(stdout.to_string())
 }
 
+pub fn create_lightweight_tag(name: &str) -> anyhow::Result<()> {
+    let output = Command::new("git").arg("tag").arg(name).output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
 /// input must be from the `git --no-pager tag -l --sort=-creatordate --format='%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e'` command
 /// or from fetch_all_tags()
 pub fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
