@@ -14,7 +14,6 @@ pub fn run() {
         .with_help_message("This will discard all uncommitted changes. Continue?")
         .prompt()
         .unwrap();
-
     if !prompt {
         return;
     }
