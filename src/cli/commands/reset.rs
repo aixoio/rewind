@@ -1,4 +1,4 @@
-use crate::git::repo::is_git_repo;
+use crate::git::repo::{self, is_git_repo};
 
 use inquire::Confirm;
 use owo_colors::OwoColorize;
@@ -19,5 +19,17 @@ pub fn run() {
         return;
     }
 
-    println!("resetting...");
+    println!("{}", "Staging all files...".green());
+    repo::add_paths(&[".".to_string()]).unwrap();
+
+    println!("{}", "Performing hard reset...".green());
+    repo::reset().unwrap();
+
+    println!();
+
+    println!("{}", "Repository successfully reset".bright_green().bold());
+    println!(
+        "{}",
+        "All uncommitted changes have been discarded".bright_black()
+    );
 }
