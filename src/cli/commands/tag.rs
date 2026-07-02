@@ -10,6 +10,11 @@ use crate::git::{
 #[derive(Subcommand, Debug)]
 pub enum TagCommand {
     List,
+    Create {
+        name: String,
+        #[arg(short, long)]
+        message: Option<String>,
+    },
 }
 
 pub fn run(command: TagCommand) {
@@ -20,7 +25,12 @@ pub fn run(command: TagCommand) {
 
     match command {
         TagCommand::List => list_tags(),
+        TagCommand::Create { name, message } => create_tag(name, message),
     }
+}
+
+fn create_tag(name: String, message: Option<String>) {
+    println!("{name}{message:?}");
 }
 
 fn list_tags() {
