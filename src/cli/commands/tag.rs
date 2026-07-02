@@ -15,6 +15,9 @@ pub enum TagCommand {
         #[arg(short, long)]
         message: Option<String>,
     },
+    Delete {
+        name: String,
+    },
 }
 
 pub fn run(command: TagCommand) {
@@ -26,7 +29,12 @@ pub fn run(command: TagCommand) {
     match command {
         TagCommand::List => list_tags(),
         TagCommand::Create { name, message } => create_tag(name, message),
+        TagCommand::Delete { name } => delete_tag(name),
     }
+}
+
+fn delete_tag(name: String) {
+    todo!()
 }
 
 fn create_tag(name: String, message: Option<String>) {
