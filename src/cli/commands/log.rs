@@ -2,7 +2,7 @@ use crate::git::{
     branch::current_branch,
     log::{fetch_log, fetch_log_with_limit, parse_commit_log},
     repo::is_git_repo,
-    status::fetch_status,
+    status::{fetch_status, parse_status},
 };
 
 use owo_colors::OwoColorize;
@@ -47,11 +47,11 @@ pub fn run(limit: Option<usize>, show_all: bool) {
         }
     }
 
-    let status = fetch_status();
+    let Ok(status) = fetch_status() else {
+        return;
+    };
 
-    if let Ok(status) = status
-        && status.total_files() != 0
-    {
+    if parse_status(&status).total_files() != 0 {
         println!("{}", "Uncommitted changes".yellow().bold());
     }
 }

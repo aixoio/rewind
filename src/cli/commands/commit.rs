@@ -7,7 +7,7 @@ use owo_colors::OwoColorize;
 
 use crate::git::{
     repo::{add_paths, commit, is_git_repo},
-    status::fetch_status_raw,
+    status::fetch_status,
 };
 
 pub fn run(message: Option<String>) {
@@ -25,7 +25,7 @@ pub fn run(message: Option<String>) {
         println!();
     }
 
-    let raw_status = fetch_status_raw().expect("cannot fetch status");
+    let raw_status = fetch_status().expect("cannot fetch status");
 
     println!("{}:", "Files to be committed".bright_green().bold());
 

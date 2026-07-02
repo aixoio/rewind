@@ -3,10 +3,10 @@ use std::process::Command;
 use anyhow::Ok;
 
 #[derive(Debug, PartialEq, Eq, Default)]
-pub struct StatusResult {
-    staged: Vec<String>,
-    unstaged: Vec<String>,
-    untracked: Vec<String>,
+pub struct StatusResult<'a> {
+    staged: Vec<&'a str>,
+    unstaged: Vec<&'a str>,
+    untracked: Vec<&'a str>,
 }
 
 macro_rules! getter {
@@ -17,27 +17,17 @@ macro_rules! getter {
     };
 }
 
-impl StatusResult {
-    getter!(staged, Vec<String>);
-    getter!(unstaged, Vec<String>);
-    getter!(untracked, Vec<String>);
+impl<'a> StatusResult<'a> {
+    getter!(staged, Vec<&'a str>);
+    getter!(unstaged, Vec<&'a str>);
+    getter!(untracked, Vec<&'a str>);
 
     pub fn total_files(&self) -> usize {
         self.staged.len() + self.unstaged.len() + self.untracked.len()
     }
 }
 
-pub fn fetch_status() -> anyhow::Result<StatusResult> {
-    let output = Command::new("git")
-        .arg("status")
-        .arg("--porcelain")
-        .output()?;
-    let stdout = String::from_utf8_lossy(&output.stdout);
-
-    Ok(parse_status(&stdout))
-}
-
-pub fn fetch_status_raw() -> anyhow::Result<String> {
+pub fn fetch_status() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("status")
         .arg("--porcelain")
@@ -47,17 +37,18 @@ pub fn fetch_status_raw() -> anyhow::Result<String> {
     Ok(stdout.to_string())
 }
 
-fn parse_status(status: &str) -> StatusResult {
+pub fn parse_status<'a>(status: &'a str) -> StatusResult<'a> {
     let mut status_result = StatusResult::default();
 
     for line in status.lines() {
-        let file_name: String = line.chars().skip(2).collect();
-        let file_name = file_name.trim().to_owned();
+        let Some(file_name) = line.get(2..) else {
+            continue;
+        };
+        let file_name = file_name.trim();
 
-        let (x, y) = (
-            line.chars().next().unwrap_or(' '),
-            line.chars().nth(1).unwrap_or(' '),
-        );
+        let mut chars = line.chars();
+        let x = chars.next().unwrap_or(' ');
+        let y = chars.next().unwrap_or(' ');
 
         if x == '?' && y == '?' {
             status_result.untracked.push(file_name);
@@ -65,7 +56,7 @@ fn parse_status(status: &str) -> StatusResult {
         }
 
         if x != ' ' {
-            status_result.staged.push(file_name.clone());
+            status_result.staged.push(file_name);
         }
 
         if y != ' ' {
@@ -80,17 +71,13 @@ fn parse_status(status: &str) -> StatusResult {
 mod tests {
     use super::*;
 
-    fn strings(items: Vec<&str>) -> Vec<String> {
-        items.iter().map(|s| s.to_string()).collect()
-    }
-
     #[test]
     fn test_parse_status_basic() {
         let input = vec![" M src/main.rs", "MM src/lib.rs", "D  README.md"].join("\n");
 
         let target = StatusResult {
-            staged: strings(vec!["src/lib.rs", "README.md"]),
-            unstaged: strings(vec!["src/main.rs", "src/lib.rs"]),
+            staged: vec!["src/lib.rs", "README.md"],
+            unstaged: vec!["src/main.rs", "src/lib.rs"],
             ..Default::default()
         };
 
@@ -102,7 +89,7 @@ mod tests {
         let input = vec!["?? notes.txt", "?? src/new_file.rs"].join("\n");
 
         let target = StatusResult {
-            untracked: strings(vec!["notes.txt", "src/new_file.rs"]),
+            untracked: vec!["notes.txt", "src/new_file.rs"],
             ..Default::default()
         };
 
@@ -114,7 +101,7 @@ mod tests {
         let input = vec!["M  src/main.rs", "A  src/lib.rs", "D  old.txt"].join("\n");
 
         let target = StatusResult {
-            staged: strings(vec!["src/main.rs", "src/lib.rs", "old.txt"]),
+            staged: vec!["src/main.rs", "src/lib.rs", "old.txt"],
             ..Default::default()
         };
 
@@ -126,7 +113,7 @@ mod tests {
         let input = vec![" M src/main.rs", " D old.txt"].join("\n");
 
         let target = StatusResult {
-            unstaged: strings(vec!["src/main.rs", "old.txt"]),
+            unstaged: vec!["src/main.rs", "old.txt"],
             ..Default::default()
         };
 
@@ -138,8 +125,8 @@ mod tests {
         let input = vec!["MM src/lib.rs", "AM src/new.rs", "MD src/delete_later.rs"].join("\n");
 
         let target = StatusResult {
-            staged: strings(vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"]),
-            unstaged: strings(vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"]),
+            staged: vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"],
+            unstaged: vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"],
             ..Default::default()
         };
 
@@ -169,7 +156,7 @@ mod tests {
         let input = "R  old_name.rs -> new_name.rs";
 
         let target = StatusResult {
-            staged: strings(vec!["old_name.rs -> new_name.rs"]),
+            staged: vec!["old_name.rs -> new_name.rs"],
             ..Default::default()
         };
 

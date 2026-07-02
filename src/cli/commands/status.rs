@@ -1,4 +1,8 @@
-use crate::git::{branch::current_branch, repo::is_git_repo, status::fetch_status};
+use crate::git::{
+    branch::current_branch,
+    repo::is_git_repo,
+    status::{fetch_status, parse_status},
+};
 use owo_colors::OwoColorize;
 
 pub fn run() {
@@ -13,6 +17,7 @@ pub fn run() {
     println!();
 
     let status = fetch_status().expect("failed to fetch git status");
+    let status = parse_status(&status);
 
     if status.total_files() == 0 {
         println!("{}", "No changes to commit.".bright_black());
