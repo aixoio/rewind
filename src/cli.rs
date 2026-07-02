@@ -4,6 +4,7 @@ use crate::cli::commands::{
     add,
     branch::{self, BranchCommands},
     checkout, commit, diff, init, log, merge, pull, push, reset, status,
+    tag::{self, TagCommand},
 };
 
 mod commands;
@@ -58,6 +59,11 @@ pub enum Commands {
         target: String,
     },
     Reset,
+    #[command(alias = "t")]
+    Tag {
+        #[command(subcommand)]
+        command: TagCommand,
+    },
 }
 
 impl Commands {
@@ -75,6 +81,7 @@ impl Commands {
             Commands::Merge { source, target } => merge::run(source, target),
             Commands::Checkout { target } => checkout::run(target),
             Commands::Reset => reset::run(),
+            Commands::Tag { command } => tag::run(command),
         }
     }
 }
