@@ -39,6 +39,10 @@ fn list_tags() {
     let stdout = fetch_all_tags().expect("failed to fetch all tags");
     let tags = parse_git_tags(&stdout);
 
+    if tags.is_empty() {
+        println!("     {}", "No tags found".bright_black());
+    }
+
     for tag in tags {
         println!(
             "     {} ({})",
