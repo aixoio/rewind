@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 
 use crate::git::{
     repo::is_git_repo,
-    tag::{create_lightweight_tag, fetch_all_tags, parse_git_tags},
+    tag::{create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags},
 };
 
 #[derive(Subcommand, Debug)]
@@ -32,7 +32,17 @@ pub fn run(command: TagCommand) {
 fn create_tag(name: String, message: Option<String>) {
     match message {
         Some(message) => {
-            todo!();
+            println!(
+                "{} {}",
+                "Creating annotated tag:".green(),
+                name.green().bold()
+            );
+
+            create_annotated_tag(&name, &message).expect("failed to create annotated tag");
+
+            println!("{}", "Annotated tag created successfully!".bright_green(),);
+            println!("{} {}", "Tag:".bright_black(), name.bold());
+            println!("{} {}", "Message:".bright_black(), message);
         }
         None => {
             println!(
