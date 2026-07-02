@@ -3,11 +3,11 @@ use std::process::Command;
 use anyhow::anyhow;
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct Commit {
-    hash: String,
-    date: String,
-    refs: Vec<String>,
-    subject: String,
+pub struct Commit<'a> {
+    hash: &'a str,
+    date: &'a str,
+    refs: Vec<&'a str>,
+    subject: &'a str,
 }
 
 macro_rules! getter {
@@ -18,18 +18,18 @@ macro_rules! getter {
     };
 }
 
-impl Commit {
-    getter!(hash, String);
-    getter!(date, String);
-    getter!(refs, Vec<String>);
-    getter!(subject, String);
+impl<'a> Commit<'a> {
+    getter!(hash, &'a str);
+    getter!(date, &'a str);
+    getter!(refs, Vec<&'a str>);
+    getter!(subject, &'a str);
 
     fn build(
-        hash: String,
-        date: String,
-        refs: Vec<String>,
-        subject: String,
-    ) -> anyhow::Result<Commit> {
+        hash: &'a str,
+        date: &'a str,
+        refs: Vec<&'a str>,
+        subject: &'a str,
+    ) -> anyhow::Result<Commit<'a>> {
         if hash.trim().is_empty() {
             return Err(anyhow!("missing hash"));
         }
@@ -51,7 +51,7 @@ impl Commit {
     }
 }
 
-pub fn fetch_log() -> anyhow::Result<Vec<Commit>> {
+pub fn fetch_log() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
         .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
@@ -59,10 +59,10 @@ pub fn fetch_log() -> anyhow::Result<Vec<Commit>> {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    parse_format_string(&stdout)
+    Ok(stdout.to_string())
 }
 
-pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<Vec<Commit>> {
+pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
         .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
@@ -72,11 +72,11 @@ pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<Vec<Commit>> {
 
     let stdout = String::from_utf8_lossy(&output.stdout);
 
-    parse_format_string(&stdout)
+    Ok(stdout.to_string())
 }
 
 /// commits must follow the format git log --pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e
-fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
+pub fn parse_commit_log<'a>(format_string: &'a str) -> Vec<Commit<'a>> {
     let mut commits = Vec::new();
 
     for record in format_string.trim().split("\x1e") {
@@ -86,38 +86,41 @@ fn parse_format_string(format_string: &str) -> anyhow::Result<Vec<Commit>> {
 
         let mut fields = record.split("\x1f");
 
-        let hash = fields
-            .next()
-            .ok_or_else(|| anyhow!("missing hash"))?
-            .trim()
-            .to_string();
+        let Some(hash) = fields.next() else {
+            continue;
+        };
+        let hash = hash.trim();
 
-        let date = fields
-            .next()
-            .ok_or_else(|| anyhow!("missing date"))?
-            .trim()
-            .to_string();
+        let Some(date) = fields.next() else {
+            continue;
+        };
+        let date = date.trim();
 
-        let refs: Vec<_> = fields
-            .next()
-            .ok_or_else(|| anyhow!("missing refs"))?
+        let Some(refs) = fields.next() else {
+            continue;
+        };
+        let refs = refs
             .split(", ")
-            .map(|i| i.trim().to_string())
-            .filter(|i| !i.is_empty())
+            .filter_map(|i| {
+                let i = i.trim();
+
+                if i.is_empty() { None } else { Some(i) }
+            })
             .collect();
 
-        let subject = fields
-            .next()
-            .ok_or_else(|| anyhow!("missing subject"))?
-            .trim()
-            .to_string();
+        let Some(subject) = fields.next() else {
+            continue;
+        };
+        let subject = subject.trim();
 
-        let commit = Commit::build(hash, date, refs, subject)?;
+        let Ok(commit) = Commit::build(hash, date, refs, subject) else {
+            continue;
+        };
 
         commits.push(commit);
     }
 
-    Ok(commits)
+    commits
 }
 
 #[cfg(test)]
@@ -129,13 +132,13 @@ mod tests {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1f\x1fInitial commit\x1e";
 
         let expected = Commit {
-            hash: "1111111111111111111111111111111111111111".to_string(),
-            date: "2026-06-29T10:15:30+08:00".to_string(),
+            hash: "1111111111111111111111111111111111111111",
+            date: "2026-06-29T10:15:30+08:00",
             refs: vec![],
-            subject: "Initial commit".to_string(),
+            subject: "Initial commit",
         };
 
-        assert_eq!(parse_format_string(example).unwrap(), vec![expected]);
+        assert_eq!(parse_commit_log(example), vec![expected]);
     }
 
     #[test]
@@ -143,17 +146,13 @@ mod tests {
         let example = "2222222222222222222222222222222222222222\x1f2026-06-29T11:20:00+08:00\x1fHEAD -> master, origin/master, origin/HEAD\x1fFix parser\x1e";
 
         let expected = Commit {
-            hash: "2222222222222222222222222222222222222222".to_string(),
-            date: "2026-06-29T11:20:00+08:00".to_string(),
-            refs: vec![
-                "HEAD -> master".to_string(),
-                "origin/master".to_string(),
-                "origin/HEAD".to_string(),
-            ],
-            subject: "Fix parser".to_string(),
+            hash: "2222222222222222222222222222222222222222",
+            date: "2026-06-29T11:20:00+08:00",
+            refs: vec!["HEAD -> master", "origin/master", "origin/HEAD"],
+            subject: "Fix parser",
         };
 
-        assert_eq!(parse_format_string(example).unwrap(), vec![expected]);
+        assert_eq!(parse_commit_log(example), vec![expected]);
     }
 
     #[test]
@@ -161,13 +160,13 @@ mod tests {
         let example = "3333333333333333333333333333333333333333\x1f2026-06-28T18:45:10+08:00\x1ftag: v1.0.0\x1fRelease v1.0.0\x1e";
 
         let expected = Commit {
-            hash: "3333333333333333333333333333333333333333".to_string(),
-            date: "2026-06-28T18:45:10+08:00".to_string(),
-            refs: vec!["tag: v1.0.0".to_string()],
-            subject: "Release v1.0.0".to_string(),
+            hash: "3333333333333333333333333333333333333333",
+            date: "2026-06-28T18:45:10+08:00",
+            refs: vec!["tag: v1.0.0"],
+            subject: "Release v1.0.0",
         };
 
-        assert_eq!(parse_format_string(example).unwrap(), vec![expected]);
+        assert_eq!(parse_commit_log(example), vec![expected]);
     }
 
     #[test]
@@ -179,20 +178,20 @@ mod tests {
 
         let expected = vec![
             Commit {
-                hash: "4444444444444444444444444444444444444444".to_string(),
-                date: "2026-06-27T09:00:00+08:00".to_string(),
-                refs: vec!["feature/log-view".to_string()],
-                subject: "Add custom log view".to_string(),
+                hash: "4444444444444444444444444444444444444444",
+                date: "2026-06-27T09:00:00+08:00",
+                refs: vec!["feature/log-view"],
+                subject: "Add custom log view",
             },
             Commit {
-                hash: "5555555555555555555555555555555555555555".to_string(),
-                date: "2026-06-26T14:30:25+08:00".to_string(),
-                refs: vec!["origin/feature/log-view".to_string()],
-                subject: "Add tests".to_string(),
+                hash: "5555555555555555555555555555555555555555",
+                date: "2026-06-26T14:30:25+08:00",
+                refs: vec!["origin/feature/log-view"],
+                subject: "Add tests",
             },
         ];
 
-        assert_eq!(parse_format_string(example).unwrap(), expected);
+        assert_eq!(parse_commit_log(example), expected);
     }
 
     #[test]
@@ -200,47 +199,47 @@ mod tests {
         let example = "6666666666666666666666666666666666666666\x1f2026-06-25T22:05:44+08:00\x1fHEAD -> main, origin/main\x1fFix: parse refs, dates, and subjects correctly\x1e";
 
         let expected = Commit {
-            hash: "6666666666666666666666666666666666666666".to_string(),
-            date: "2026-06-25T22:05:44+08:00".to_string(),
-            refs: vec!["HEAD -> main".to_string(), "origin/main".to_string()],
-            subject: "Fix: parse refs, dates, and subjects correctly".to_string(),
+            hash: "6666666666666666666666666666666666666666",
+            date: "2026-06-25T22:05:44+08:00",
+            refs: vec!["HEAD -> main", "origin/main"],
+            subject: "Fix: parse refs, dates, and subjects correctly",
         };
 
-        assert_eq!(parse_format_string(example).unwrap(), vec![expected]);
+        assert_eq!(parse_commit_log(example), vec![expected]);
     }
 
     #[test]
     fn test_log_parser_error_missing_hash() {
         let example = "\x1f2026-06-29T10:15:30+08:00\x1f\x1fInitial commit\x1e";
 
-        assert!(parse_format_string(example).is_err());
+        assert!(parse_commit_log(example).is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_date() {
         let example = "1111111111111111111111111111111111111111\x1f\x1f\x1fInitial commit\x1e";
 
-        assert!(parse_format_string(example).is_err());
+        assert!(parse_commit_log(example).is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_refs_field() {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fInitial commit\x1e";
 
-        assert!(parse_format_string(example).is_err());
+        assert!(parse_commit_log(example).is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_subject() {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fHEAD -> main\x1e";
 
-        assert!(parse_format_string(example).is_err());
+        assert!(parse_commit_log(example).is_empty());
     }
 
     #[test]
     fn test_log_parser_garbage_input() {
         let exmaple = "123456NMHIYUGVJ{}[][vpdfkvfpovjfhue]]\\\x1e\x1e\x1e";
 
-        assert!(parse_format_string(exmaple).is_err());
+        assert!(parse_commit_log(exmaple).is_empty());
     }
 }

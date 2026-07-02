@@ -1,6 +1,6 @@
 use crate::git::{
     branch::current_branch,
-    log::{fetch_log, fetch_log_with_limit},
+    log::{fetch_log, fetch_log_with_limit, parse_commit_log},
     repo::is_git_repo,
     status::fetch_status,
 };
@@ -21,6 +21,8 @@ pub fn run(limit: Option<usize>, show_all: bool) {
         fetch_log_with_limit(limit)
     };
     let commits = commits.expect("failed to fetch commits");
+
+    let commits = parse_commit_log(&commits);
 
     println!("{}", "Git log".cyan().bold());
 
