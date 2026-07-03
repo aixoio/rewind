@@ -1,12 +1,16 @@
 use inquire::Confirm;
 use owo_colors::OwoColorize;
 
-use crate::git::{
-    branch::{
-        all_branches, branch_exists, create_branch, current_branch, delete_branch,
-        delete_remote_branch, parse_branch_names,
+use crate::{
+    check_for_git_repo,
+    git::{
+        branch::{
+            all_branches, branch_exists, create_branch, current_branch, delete_branch,
+            delete_remote_branch, parse_branch_names,
+        },
+        repo,
     },
-    repo::{self, is_git_repo},
+    handle_error,
 };
 
 use clap::Subcommand;
@@ -21,10 +25,7 @@ pub enum BranchCommands {
 }
 
 pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     if name.is_none() && sub_command.is_none() {
         branch_list();
@@ -72,7 +73,13 @@ fn branch_delete(name: String, remote: bool) {
     } else {
         format!("You are sure you want to delete the branch {name}?")
     };
-    let check = Confirm::new(&message).with_default(false).prompt().unwrap();
+    let check = match Confirm::new(&message).with_default(false).prompt() {
+        Ok(check) => check,
+        Err(err) => {
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
+            return;
+        }
+    };
     if !check {
         return;
     }
@@ -80,9 +87,9 @@ fn branch_delete(name: String, remote: bool) {
     println!("{} {}", "Deleting branch".green(), name);
 
     if remote {
-        delete_remote_branch(&name).expect("cannot delete remote branch");
+        handle_error!(delete_remote_branch(&name));
     } else {
-        delete_branch(&name).expect("cannot delete branch");
+        handle_error!(delete_branch(&name));
     }
 
     println!("{} {}", "Deleted branch:".green(), name.trim().bold());
@@ -124,11 +131,12 @@ fn branch_create_or_switch(name: String) {
     println!();
 
     if !branch_exists(name.trim()) {
-        create_branch(name.trim()).expect("failed to create branch");
+        handle_error!(create_branch(name.trim()));
+
         println!("{} {}", "Created new branch:".green(), name.trim().bold());
     }
 
-    repo::checkout(name.trim()).expect("cannnot checkout target");
+    handle_error!(repo::checkout(name.trim()));
 
     println!("{} {}", "Switched to branch:".green(), name.trim().bold());
 }
