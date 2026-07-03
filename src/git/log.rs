@@ -6,7 +6,7 @@ use anyhow::anyhow;
 pub struct Commit<'a> {
     hash: &'a str,
     date: &'a str,
-    refs: Vec<&'a str>,
+    refs: &'a str,
     subject: &'a str,
 }
 
@@ -21,13 +21,13 @@ macro_rules! getter {
 impl<'a> Commit<'a> {
     getter!(hash, &'a str);
     getter!(date, &'a str);
-    getter!(refs, Vec<&'a str>);
+    getter!(refs, &'a str);
     getter!(subject, &'a str);
 
     fn build(
         hash: &'a str,
         date: &'a str,
-        refs: Vec<&'a str>,
+        refs: &'a str,
         subject: &'a str,
     ) -> anyhow::Result<Commit<'a>> {
         if hash.trim().is_empty() {
@@ -87,15 +87,7 @@ pub fn parse_commit_log<'a>(format_string: &'a str) -> impl Iterator<Item = Comm
         let hash = fields.next()?.trim();
         let date = fields.next()?.trim();
 
-        let refs = fields
-            .next()?
-            .split(", ")
-            .filter_map(|i| {
-                let i = i.trim();
-
-                if i.is_empty() { None } else { Some(i) }
-            })
-            .collect();
+        let refs = fields.next()?.trim();
 
         let subject = fields.next()?.trim();
 
@@ -114,7 +106,7 @@ mod tests {
         let expected = Commit {
             hash: "1111111111111111111111111111111111111111",
             date: "2026-06-29T10:15:30+08:00",
-            refs: vec![],
+            refs: "",
             subject: "Initial commit",
         };
 
@@ -131,7 +123,7 @@ mod tests {
         let expected = Commit {
             hash: "2222222222222222222222222222222222222222",
             date: "2026-06-29T11:20:00+08:00",
-            refs: vec!["HEAD -> master", "origin/master", "origin/HEAD"],
+            refs: "HEAD -> master, origin/master, origin/HEAD",
             subject: "Fix parser",
         };
 
@@ -148,7 +140,7 @@ mod tests {
         let expected = Commit {
             hash: "3333333333333333333333333333333333333333",
             date: "2026-06-28T18:45:10+08:00",
-            refs: vec!["tag: v1.0.0"],
+            refs: "tag: v1.0.0",
             subject: "Release v1.0.0",
         };
 
@@ -169,13 +161,13 @@ mod tests {
             Commit {
                 hash: "4444444444444444444444444444444444444444",
                 date: "2026-06-27T09:00:00+08:00",
-                refs: vec!["feature/log-view"],
+                refs: "feature/log-view",
                 subject: "Add custom log view",
             },
             Commit {
                 hash: "5555555555555555555555555555555555555555",
                 date: "2026-06-26T14:30:25+08:00",
-                refs: vec!["origin/feature/log-view"],
+                refs: "origin/feature/log-view",
                 subject: "Add tests",
             },
         ];
@@ -190,7 +182,7 @@ mod tests {
         let expected = Commit {
             hash: "6666666666666666666666666666666666666666",
             date: "2026-06-25T22:05:44+08:00",
-            refs: vec!["HEAD -> main", "origin/main"],
+            refs: "HEAD -> main, origin/main",
             subject: "Fix: parse refs, dates, and subjects correctly",
         };
 
