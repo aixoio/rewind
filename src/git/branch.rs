@@ -11,19 +11,15 @@ pub fn current_branch() -> anyhow::Result<String> {
     Ok(String::from_utf8_lossy(&output.stdout).trim().to_string())
 }
 
-pub fn all_branches() -> anyhow::Result<Vec<String>> {
+pub fn all_branches() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("--no-pager")
         .arg("branch")
         .arg("--list")
         .arg("--format=%(refname:short)")
         .output()?;
-    let stdout = String::from_utf8_lossy(&output.stdout);
 
-    Ok(parse_branch_names(&stdout)
-        .iter()
-        .map(|b| b.to_string())
-        .collect())
+    Ok(String::from_utf8_lossy(&output.stdout).to_string())
 }
 
 /// wraps `git show-ref --verify --quiet refs/heads/{branch}`
@@ -90,18 +86,14 @@ pub fn delete_remote_branch(branch: &str) -> anyhow::Result<()> {
 }
 
 /// must be used with `git --no-pager branch --list --format='%(refname:short)'`
-fn parse_branch_names(stdout: &str) -> Vec<&str> {
-    stdout
-        .trim()
-        .lines()
-        .filter_map(|line| {
-            if line.trim().is_empty() {
-                return None;
-            }
+pub fn parse_branch_names(stdout: &str) -> impl Iterator<Item = &str> {
+    stdout.trim().lines().filter_map(|line| {
+        if line.trim().is_empty() {
+            return None;
+        }
 
-            Some(line.trim())
-        })
-        .collect()
+        Some(line.trim())
+    })
 }
 
 #[cfg(test)]
@@ -113,7 +105,7 @@ mod tests {
         let input = "master\nmain\nstaging";
         let target = vec!["master", "main", "staging"];
 
-        assert_eq!(target, parse_branch_names(input))
+        assert_eq!(target, parse_branch_names(input).collect::<Vec<_>>())
     }
 
     #[test]
@@ -121,6 +113,6 @@ mod tests {
         let input = "\n\t\t\n";
         let target: Vec<&str> = vec![];
 
-        assert_eq!(target, parse_branch_names(input))
+        assert_eq!(target, parse_branch_names(input).collect::<Vec<_>>())
     }
 }

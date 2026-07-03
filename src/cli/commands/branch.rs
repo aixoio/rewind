@@ -4,7 +4,7 @@ use owo_colors::OwoColorize;
 use crate::git::{
     branch::{
         all_branches, branch_exists, create_branch, current_branch, delete_branch,
-        delete_remote_branch,
+        delete_remote_branch, parse_branch_names,
     },
     repo::{self, is_git_repo},
 };
@@ -101,6 +101,7 @@ fn branch_list() {
         eprintln!("{}", "cannot get all branches".bright_red().bold());
         return;
     };
+    let branches = parse_branch_names(&branches);
 
     println!("{}", "Branches:".blue().bold());
     for branch in branches {
