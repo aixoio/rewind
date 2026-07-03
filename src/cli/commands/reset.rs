@@ -6,11 +6,17 @@ use owo_colors::OwoColorize;
 pub fn run() {
     check_for_git_repo!();
 
-    let prompt = Confirm::new("Reset Repository")
+    let prompt = match Confirm::new("Reset Repository")
         .with_default(false)
         .with_help_message("This will discard all uncommitted changes. Continue?")
         .prompt()
-        .unwrap();
+    {
+        Ok(prompt) => prompt,
+        Err(err) => {
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
+            return;
+        }
+    };
     if !prompt {
         return;
     }
