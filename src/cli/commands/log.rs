@@ -1,17 +1,16 @@
-use crate::git::{
-    branch::current_branch,
-    log::{fetch_log, fetch_log_with_limit, parse_commit_log},
-    repo::is_git_repo,
-    status::{fetch_status, parse_status},
+use crate::{
+    check_for_git_repo,
+    git::{
+        branch::current_branch,
+        log::{fetch_log, fetch_log_with_limit, parse_commit_log},
+        status::{fetch_status, parse_status},
+    },
 };
 
 use owo_colors::OwoColorize;
 
 pub fn run(limit: Option<usize>, show_all: bool) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     let limit = limit.unwrap_or(10);
 
@@ -20,7 +19,13 @@ pub fn run(limit: Option<usize>, show_all: bool) {
     } else {
         fetch_log_with_limit(limit)
     };
-    let commits = commits.expect("failed to fetch commits");
+    let commits = match commits {
+        Ok(commits) => commits,
+        Err(err) => {
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
+            return;
+        }
+    };
 
     let commits = parse_commit_log(&commits);
 
