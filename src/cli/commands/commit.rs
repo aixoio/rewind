@@ -5,27 +5,38 @@ use inquire::{
 };
 use owo_colors::OwoColorize;
 
-use crate::git::{
-    repo::{add_paths, commit, is_git_repo},
-    status::fetch_status,
+use crate::{
+    check_for_git_repo,
+    git::{
+        repo::{add_paths, commit},
+        status::fetch_status,
+    },
+    handle_error,
 };
 
 pub fn run(message: Option<String>) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     println!();
 
     if message.is_none() {
-        add_paths(&[".".to_string()]).expect("cannot add paths");
+        handle_error!(add_paths(&[".".to_string()]));
 
         println!("{}", "Staged all files".blue());
         println!();
     }
 
-    let raw_status = fetch_status().expect("cannot fetch status");
+    let raw_status = match fetch_status() {
+        Ok(status) => status,
+        Err(err) => {
+            eprintln!(
+                "{} {}",
+                "error:".bright_red().bold(),
+                err.to_string().bold()
+            );
+            return;
+        }
+    };
 
     println!("{}:", "Files to be committed".bright_green().bold());
 
@@ -46,8 +57,9 @@ pub fn run(message: Option<String>) {
 
     inquire::set_global_render_config(style);
 
-    let message = message.unwrap_or_else(|| {
-        Text::new("commit message:")
+    let message = match message {
+        Some(msg) => msg,
+        None => match Text::new("Commit message:")
             .with_validator(|s: &str| {
                 if s.trim().is_empty() {
                     Ok(Validation::Invalid(
@@ -58,10 +70,20 @@ pub fn run(message: Option<String>) {
                 }
             })
             .prompt()
-            .unwrap()
-    });
+        {
+            Ok(msg) => msg,
+            Err(err) => {
+                eprintln!(
+                    "{} {}",
+                    "error:".bright_red().bold(),
+                    format!("Failed to read commit message: {err}").bold(),
+                );
+                return;
+            }
+        },
+    };
 
-    commit(&message).expect("faild to commit");
+    handle_error!(commit(&message));
 
     println!();
 
