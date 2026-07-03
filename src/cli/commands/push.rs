@@ -1,18 +1,15 @@
-use crate::git::{remote, repo::is_git_repo};
+use crate::{check_for_git_repo, git::remote, handle_error};
 
 use owo_colors::OwoColorize;
 
 pub fn run() {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     match remote::upstream() {
         Some(_) => {
             println!("{}", "Pushing changes to remote...".blue());
 
-            remote::push().expect("failed to push upstream");
+            handle_error!(remote::push());
 
             println!("{}", "Push completed!".green().bold());
         }
@@ -20,7 +17,7 @@ pub fn run() {
             println!("{}", "No upstream branch configured".italic());
             println!("{}", "Setting upstream to origin/HEAD".blue());
 
-            remote::push_set_upstream().expect("failed to set upstream");
+            handle_error!(remote::push_set_upstream());
 
             println!("{}", "Push completed!".green().bold());
             println!("{}", "Upstream set and changes pushed".bright_black());
