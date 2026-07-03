@@ -1,21 +1,13 @@
-use crate::git::repo::{add_paths, is_git_repo};
+use crate::{
+    check_for_git_repo,
+    git::repo::{add_paths, is_git_repo},
+    handle_error,
+};
 
 use owo_colors::OwoColorize;
 
-macro_rules! handle_error {
-    ($ex:expr) => {
-        if let Err(err) = $ex {
-            println!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
-        };
-    };
-}
-
 pub fn run(paths: Option<Vec<String>>) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     let paths = paths.unwrap_or_else(|| vec![".".to_string()]);
 
