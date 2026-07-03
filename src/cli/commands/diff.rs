@@ -1,12 +1,11 @@
-use crate::git::repo::{self, is_git_repo};
-
-use owo_colors::OwoColorize;
+use crate::{
+    check_for_git_repo,
+    git::repo::{self, is_git_repo},
+    handle_error,
+};
 
 pub fn run() {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
-    repo::diff().expect("failed to diff");
+    handle_error!(repo::diff());
 }
