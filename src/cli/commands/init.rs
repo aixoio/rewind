@@ -1,4 +1,7 @@
-use crate::git::repo::{init_repo, is_git_repo};
+use crate::{
+    git::repo::{init_repo, is_git_repo},
+    handle_error,
+};
 
 use owo_colors::OwoColorize;
 
@@ -7,7 +10,7 @@ pub fn run() {
         println!("Reinitialized existing Git repository");
     }
 
-    init_repo().expect("faild to initialize git repo");
+    handle_error!(init_repo());
 
     println!("{}", "Initialized Git repository".bold());
 }
