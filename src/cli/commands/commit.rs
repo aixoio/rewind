@@ -20,7 +20,7 @@ pub fn run(message: Option<String>) {
     println!();
 
     if message.is_none() {
-        handle_error!(add_paths(&[".".to_string()]));
+        handle_error!(add_paths(&["."]));
 
         println!("{}", "Staged all files".blue());
         println!();
@@ -29,11 +29,7 @@ pub fn run(message: Option<String>) {
     let raw_status = match fetch_status() {
         Ok(status) => status,
         Err(err) => {
-            eprintln!(
-                "{} {}",
-                "error:".bright_red().bold(),
-                err.to_string().bold()
-            );
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
             return;
         }
     };

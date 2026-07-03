@@ -23,7 +23,7 @@ pub fn run() {
 
     println!("{}", "Staging all files...".green());
 
-    handle_error!(repo::add_paths(&[".".to_string()]));
+    handle_error!(repo::add_paths(&["."]));
 
     println!("{}", "Performing hard reset...".green());
 
