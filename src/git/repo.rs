@@ -9,8 +9,11 @@ pub fn is_git_repo() -> bool {
     Path::new(".git").exists()
 }
 
-pub fn add_paths(paths: &[String]) -> anyhow::Result<()> {
-    let output = Command::new("git").arg("add").args(paths).output()?;
+pub fn add_paths<S: AsRef<str>>(paths: &[S]) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("add")
+        .args(paths.iter().map(|p| p.as_ref()))
+        .output()?;
 
     if !output.status.success() {
         return Err(anyhow!(
