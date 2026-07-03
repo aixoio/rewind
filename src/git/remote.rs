@@ -13,13 +13,15 @@ pub fn upstream() -> Option<String> {
         return None;
     };
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let Ok(stdout) = String::from_utf8(output.stdout) else {
+        return None;
+    };
 
     if !output.status.success() {
         return None;
     }
 
-    Some(stdout.to_string())
+    Some(stdout)
 }
 
 /// sets the upstream to origin HEAD

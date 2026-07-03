@@ -59,9 +59,9 @@ pub fn fetch_all_tags() -> anyhow::Result<String> {
         ));
     }
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
+    let stdout = String::from_utf8(output.stdout)?;
 
-    Ok(stdout.to_string())
+    Ok(stdout)
 }
 
 pub fn create_lightweight_tag(name: &str) -> anyhow::Result<()> {

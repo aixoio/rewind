@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use anyhow::anyhow;
 
@@ -19,7 +19,7 @@ pub fn all_branches() -> anyhow::Result<String> {
         .arg("--format=%(refname:short)")
         .output()?;
 
-    Ok(String::from_utf8_lossy(&output.stdout).to_string())
+    Ok(String::from_utf8(output.stdout)?)
 }
 
 /// wraps `git show-ref --verify --quiet refs/heads/{branch}`
@@ -29,12 +29,15 @@ pub fn branch_exists(branch: &str) -> bool {
         .arg("--verify")
         .arg("--quiet")
         .arg(format!("refs/heads/{branch}"))
-        .output()
+        .stderr(Stdio::null())
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
+        .status()
     else {
         return false;
     };
 
-    output.status.success()
+    output.success()
 }
 
 pub fn create_branch(branch: &str) -> anyhow::Result<()> {
