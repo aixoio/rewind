@@ -18,7 +18,11 @@ macro_rules! check_for_git_repo {
         if !is_git_repo() {
             use owo_colors::OwoColorize;
 
-            eprintln!("{}", "Not a git repository".bright_red().bold());
+            eprintln!(
+                "{} {}",
+                "error:".bright_red().bold(),
+                "not a git repository".bold()
+            );
             return;
         }
     };
