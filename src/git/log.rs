@@ -54,6 +54,7 @@ impl<'a> Commit<'a> {
 pub fn fetch_log() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
+        .arg("--reverse")
         .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
         .output()?;
 
@@ -65,6 +66,7 @@ pub fn fetch_log() -> anyhow::Result<String> {
 pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
+        .arg("--reverse")
         .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
         .arg("-n")
         .arg(limit.to_string())
@@ -76,9 +78,7 @@ pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
 }
 
 /// commits must follow the format git log --pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e
-pub fn parse_commit_log<'a>(
-    format_string: &'a str,
-) -> impl DoubleEndedIterator<Item = Commit<'a>> + 'a {
+pub fn parse_commit_log<'a>(format_string: &'a str) -> impl Iterator<Item = Commit<'a>> + 'a {
     format_string.trim().split('\x1e').filter_map(|record| {
         if record.is_empty() {
             return None;

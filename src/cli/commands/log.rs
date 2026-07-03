@@ -32,7 +32,7 @@ pub fn run(limit: Option<usize>, show_all: bool) {
 
     println!();
 
-    for commit in commits.rev() {
+    for commit in commits {
         let short_hash = &commit.hash()[..7];
 
         if commit.refs().is_empty() {

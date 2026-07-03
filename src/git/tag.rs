@@ -134,39 +134,20 @@ pub fn create_annotated_tag(name: &str, message: &str) -> anyhow::Result<()> {
 
 /// input must be from the `git --no-pager tag -l --sort=-creatordate --format='%(refname:short)%1f%(creatordate:relative)%1f%(subject)%1e'` command
 /// or from fetch_all_tags()
-pub fn parse_git_tags<'a>(format_string: &'a str) -> Vec<Tag<'a>> {
-    let mut tags = Vec::new();
-
-    for line in format_string.split("\x1e") {
-        if line.trim().is_empty() {
-            continue;
+pub fn parse_git_tags<'a>(format_string: &'a str) -> impl Iterator<Item = Tag<'a>> {
+    format_string.split('\x1e').filter_map(|record| {
+        if record.trim().is_empty() {
+            return None;
         }
 
-        let mut formated_line = line.trim().split("\x1f");
+        let mut formated_line = record.trim().split('\x1f');
 
-        let Some(name) = formated_line.next() else {
-            continue;
-        };
-        let name = name.trim();
+        let name = formated_line.next()?.trim();
+        let relative_date = formated_line.next()?.trim();
+        let subject = formated_line.next()?.trim();
 
-        let Some(relative_date) = formated_line.next() else {
-            continue;
-        };
-        let relative_date = relative_date.trim();
-
-        let Some(subject) = formated_line.next() else {
-            continue;
-        };
-        let subject = subject.trim();
-
-        let Ok(tag) = Tag::build(name, relative_date, subject) else {
-            continue;
-        };
-
-        tags.push(tag);
-    }
-
-    tags
+        Tag::build(name, relative_date, subject).ok()
+    })
 }
 
 #[cfg(test)]
@@ -183,7 +164,7 @@ mod tests {
         let tags = parse_git_tags(input);
 
         assert_eq!(
-            tags,
+            tags.collect::<Vec<_>>(),
             vec![Tag {
                 name: "v1.0.0",
                 relative_date: "2 weeks ago",
@@ -203,7 +184,7 @@ mod tests {
         let tags = parse_git_tags(input);
 
         assert_eq!(
-            tags,
+            tags.collect::<Vec<_>>(),
             vec![
                 Tag {
                     name: "v2.0.0",
@@ -226,14 +207,14 @@ mod tests {
 
     #[test]
     fn returns_an_empty_vec_for_empty_input() {
-        assert!(parse_git_tags("").is_empty());
+        assert!(parse_git_tags("").collect::<Vec<_>>().is_empty());
     }
 
     #[test]
     fn skips_a_record_with_too_few_fields() {
         let input = "v1.0.0\x1fyesterday\x1e";
 
-        assert!(parse_git_tags(input).is_empty());
+        assert!(parse_git_tags(input).collect::<Vec<_>>().is_empty());
     }
 
     #[test]
@@ -243,7 +224,7 @@ mod tests {
         let tags = parse_git_tags(input);
 
         assert_eq!(
-            tags,
+            tags.collect::<Vec<_>>(),
             vec![Tag {
                 name: "v1.0.0",
                 relative_date: "yesterday",
@@ -263,7 +244,7 @@ mod tests {
         let tags = parse_git_tags(input);
 
         assert_eq!(
-            tags,
+            tags.collect::<Vec<_>>(),
             vec![Tag {
                 name: "v2.0.0",
                 relative_date: "4 days ago",
@@ -278,7 +259,7 @@ mod tests {
 
         let tags = parse_git_tags(input);
 
-        assert!(tags.is_empty());
+        assert!(tags.collect::<Vec<_>>().is_empty());
     }
 
     #[test]
@@ -289,7 +270,7 @@ mod tests {
         let tags = parse_git_tags(input);
 
         assert_eq!(
-            tags,
+            tags.collect::<Vec<_>>(),
             vec![Tag {
                 name: "release|v1, stable",
                 relative_date: "about 1 month ago",
