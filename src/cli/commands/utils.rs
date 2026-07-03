@@ -13,6 +13,8 @@ macro_rules! handle_error {
 #[macro_export]
 macro_rules! check_for_git_repo {
     () => {
+        use $crate::git::repo::is_git_repo;
+
         if !is_git_repo() {
             use owo_colors::OwoColorize;
 

@@ -1,8 +1,4 @@
-use crate::{
-    check_for_git_repo,
-    git::repo::{add_paths, is_git_repo},
-    handle_error,
-};
+use crate::{check_for_git_repo, git::repo::add_paths, handle_error};
 
 use owo_colors::OwoColorize;
 

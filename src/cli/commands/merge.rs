@@ -1,15 +1,16 @@
-use crate::git::{
-    branch::{branch_exists, current_branch},
-    repo::{checkout, is_git_repo, merge},
+use crate::{
+    check_for_git_repo,
+    git::{
+        branch::{branch_exists, current_branch},
+        repo::{checkout, merge},
+    },
+    handle_error,
 };
 
 use owo_colors::OwoColorize;
 
 pub fn run(source: String, target: String) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     if !branch_exists(&source) {
         eprintln!(
@@ -38,7 +39,8 @@ pub fn run(source: String, target: String) {
 
     if current_branch.trim() != target.trim() {
         println!("{} {}", "Switching to target branch".green(), target.cyan());
-        checkout(target.trim()).expect("cannot switch to target branch");
+
+        handle_error!(checkout(target.trim()));
     }
 
     println!(
@@ -49,7 +51,7 @@ pub fn run(source: String, target: String) {
         target.cyan()
     );
 
-    merge(source.trim()).expect("cannnot merge branchs");
+    handle_error!(merge(source.trim()));
 
     println!(
         "{} {} {} {}",
