@@ -76,30 +76,21 @@ pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
 }
 
 /// commits must follow the format git log --pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e
-pub fn parse_commit_log<'a>(format_string: &'a str) -> Vec<Commit<'a>> {
-    let mut commits = Vec::new();
-
-    for record in format_string.trim().split("\x1e") {
+pub fn parse_commit_log<'a>(
+    format_string: &'a str,
+) -> impl DoubleEndedIterator<Item = Commit<'a>> + 'a {
+    format_string.trim().split('\x1e').filter_map(|record| {
         if record.is_empty() {
-            continue;
+            return None;
         }
 
-        let mut fields = record.split("\x1f");
+        let mut fields = record.split('\x1f');
 
-        let Some(hash) = fields.next() else {
-            continue;
-        };
-        let hash = hash.trim();
+        let hash = fields.next()?.trim();
+        let date = fields.next()?.trim();
 
-        let Some(date) = fields.next() else {
-            continue;
-        };
-        let date = date.trim();
-
-        let Some(refs) = fields.next() else {
-            continue;
-        };
-        let refs = refs
+        let refs = fields
+            .next()?
             .split(", ")
             .filter_map(|i| {
                 let i = i.trim();
@@ -108,19 +99,10 @@ pub fn parse_commit_log<'a>(format_string: &'a str) -> Vec<Commit<'a>> {
             })
             .collect();
 
-        let Some(subject) = fields.next() else {
-            continue;
-        };
-        let subject = subject.trim();
+        let subject = fields.next()?.trim();
 
-        let Ok(commit) = Commit::build(hash, date, refs, subject) else {
-            continue;
-        };
-
-        commits.push(commit);
-    }
-
-    commits
+        Commit::build(hash, date, refs, subject).ok()
+    })
 }
 
 #[cfg(test)]
@@ -138,7 +120,10 @@ mod tests {
             subject: "Initial commit",
         };
 
-        assert_eq!(parse_commit_log(example), vec![expected]);
+        assert_eq!(
+            parse_commit_log(example).collect::<Vec<_>>(),
+            vec![expected]
+        );
     }
 
     #[test]
@@ -152,7 +137,10 @@ mod tests {
             subject: "Fix parser",
         };
 
-        assert_eq!(parse_commit_log(example), vec![expected]);
+        assert_eq!(
+            parse_commit_log(example).collect::<Vec<_>>(),
+            vec![expected]
+        );
     }
 
     #[test]
@@ -166,7 +154,10 @@ mod tests {
             subject: "Release v1.0.0",
         };
 
-        assert_eq!(parse_commit_log(example), vec![expected]);
+        assert_eq!(
+            parse_commit_log(example).collect::<Vec<_>>(),
+            vec![expected]
+        );
     }
 
     #[test]
@@ -191,7 +182,7 @@ mod tests {
             },
         ];
 
-        assert_eq!(parse_commit_log(example), expected);
+        assert_eq!(parse_commit_log(example).collect::<Vec<_>>(), expected);
     }
 
     #[test]
@@ -205,41 +196,44 @@ mod tests {
             subject: "Fix: parse refs, dates, and subjects correctly",
         };
 
-        assert_eq!(parse_commit_log(example), vec![expected]);
+        assert_eq!(
+            parse_commit_log(example).collect::<Vec<_>>(),
+            vec![expected]
+        );
     }
 
     #[test]
     fn test_log_parser_error_missing_hash() {
         let example = "\x1f2026-06-29T10:15:30+08:00\x1f\x1fInitial commit\x1e";
 
-        assert!(parse_commit_log(example).is_empty());
+        assert!(parse_commit_log(example).collect::<Vec<_>>().is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_date() {
         let example = "1111111111111111111111111111111111111111\x1f\x1f\x1fInitial commit\x1e";
 
-        assert!(parse_commit_log(example).is_empty());
+        assert!(parse_commit_log(example).collect::<Vec<_>>().is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_refs_field() {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fInitial commit\x1e";
 
-        assert!(parse_commit_log(example).is_empty());
+        assert!(parse_commit_log(example).collect::<Vec<_>>().is_empty());
     }
 
     #[test]
     fn test_log_parser_error_missing_subject() {
         let example = "1111111111111111111111111111111111111111\x1f2026-06-29T10:15:30+08:00\x1fHEAD -> main\x1e";
 
-        assert!(parse_commit_log(example).is_empty());
+        assert!(parse_commit_log(example).collect::<Vec<_>>().is_empty());
     }
 
     #[test]
     fn test_log_parser_garbage_input() {
         let exmaple = "123456NMHIYUGVJ{}[][vpdfkvfpovjfhue]]\\\x1e\x1e\x1e";
 
-        assert!(parse_commit_log(exmaple).is_empty());
+        assert!(parse_commit_log(exmaple).collect::<Vec<_>>().is_empty());
     }
 }
