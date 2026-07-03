@@ -3,12 +3,13 @@ use clap::Subcommand;
 use inquire::Confirm;
 use owo_colors::OwoColorize;
 
-use crate::git::{
-    repo::is_git_repo,
-    tag::{
+use crate::{
+    check_for_git_repo,
+    git::tag::{
         self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
         push_all_tags,
     },
+    handle_error,
 };
 
 #[derive(Subcommand, Debug)]
@@ -26,10 +27,7 @@ pub enum TagCommand {
 }
 
 pub fn run(command: TagCommand) {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     match command {
         TagCommand::List => list_tags(),
@@ -42,7 +40,7 @@ pub fn run(command: TagCommand) {
 fn push_tags() {
     println!("{}", "Pushing all tags".green());
 
-    push_all_tags().expect("cannot push all tags");
+    handle_error!(push_all_tags());
 
     println!("{}", "All tags pushed!".bright_green(),);
 }
@@ -51,16 +49,22 @@ fn delete_tag(name: String) {
     println!("{} {}", "Deleting tag:".green(), name.green().bold());
 
     let help_message = format!("Are you sure you want to delete tag {}?", name);
-    let check = Confirm::new("Confirm Tag Deletion")
+    let check = match Confirm::new("Confirm Tag Deletion")
         .with_help_message(&help_message)
         .with_default(false)
         .prompt()
-        .unwrap();
+    {
+        Ok(check) => check,
+        Err(err) => {
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
+            return;
+        }
+    };
     if !check {
         return;
     }
 
-    tag::delete_tag(&name).expect("failed to delete tag");
+    handle_error!(tag::delete_tag(&name));
 
     println!("{}", "Deleted tag successfully!".bright_green(),);
     println!("{} {}", "Tag:".bright_black(), name.bold());
@@ -75,7 +79,7 @@ fn create_tag(name: String, message: Option<String>) {
                 name.green().bold()
             );
 
-            create_annotated_tag(&name, &message).expect("failed to create annotated tag");
+            handle_error!(create_annotated_tag(&name, &message));
 
             println!("{}", "Annotated tag created successfully!".bright_green(),);
             println!("{} {}", "Tag:".bright_black(), name.bold());
@@ -88,7 +92,7 @@ fn create_tag(name: String, message: Option<String>) {
                 name.green().bold()
             );
 
-            create_lightweight_tag(&name).expect("failed to create lightweight tag");
+            handle_error!(create_lightweight_tag(&name));
 
             println!("{}", "Lightweight tag created successfully!".bright_green(),);
             println!("{} {}", "Tag:".bright_black(), name.bold());
@@ -99,7 +103,13 @@ fn create_tag(name: String, message: Option<String>) {
 fn list_tags() {
     println!("{}", "Tags:".blue().bold());
 
-    let stdout = fetch_all_tags().expect("failed to fetch all tags");
+    let stdout = match fetch_all_tags() {
+        Ok(stdout) => stdout,
+        Err(err) => {
+            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
+            return;
+        }
+    };
     let tags: Vec<_> = parse_git_tags(&stdout).collect();
 
     if tags.is_empty() {
