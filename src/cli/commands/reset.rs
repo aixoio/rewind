@@ -1,13 +1,10 @@
-use crate::git::repo::{self, is_git_repo};
+use crate::{check_for_git_repo, git::repo, handle_error};
 
 use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 pub fn run() {
-    if !is_git_repo() {
-        eprintln!("{}", "Not a git repository".bright_red().bold());
-        return;
-    }
+    check_for_git_repo!();
 
     let prompt = Confirm::new("Reset Repository")
         .with_default(false)
@@ -19,10 +16,12 @@ pub fn run() {
     }
 
     println!("{}", "Staging all files...".green());
-    repo::add_paths(&[".".to_string()]).unwrap();
+
+    handle_error!(repo::add_paths(&[".".to_string()]));
 
     println!("{}", "Performing hard reset...".green());
-    repo::reset().unwrap();
+
+    handle_error!(repo::reset());
 
     println!();
 
