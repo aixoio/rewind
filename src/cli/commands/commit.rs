@@ -11,7 +11,7 @@ use crate::{
     check_for_git_repo,
     git::{
         repo::{add_paths, commit},
-        status::fetch_status,
+        status::{fetch_status, parse_status},
     },
     handle_error, return_error,
 };
@@ -28,16 +28,18 @@ pub fn run(message: Option<String>) -> ExitCode {
         println!();
     }
 
-    let raw_status = match fetch_status() {
+    let status = match fetch_status() {
         Ok(status) => status,
         Err(err) => {
             return_error!(err);
         }
     };
 
+    let status = parse_status(&status);
+
     println!("{}:", "Files to be committed".bright_green().bold());
 
-    for line in raw_status.lines() {
+    for line in status.staged() {
         println!("     {line}");
     }
 
