@@ -8,14 +8,23 @@ macro_rules! print_error {
 }
 
 #[macro_export]
+macro_rules! return_error {
+    ($err:expr) => {
+        use std::process::ExitCode;
+        use $crate::print_error;
+
+        print_error!($err);
+        return ExitCode::FAILURE;
+    };
+}
+
+#[macro_export]
 macro_rules! handle_error {
     ($ex:expr) => {
         if let Err(err) = $ex {
-            use std::process::ExitCode;
-            use $crate::print_error;
+            use $crate::return_error;
 
-            print_error!(err);
-            return ExitCode::FAILURE;
+            return_error!(err);
         };
     };
 }
@@ -26,11 +35,9 @@ macro_rules! check_for_git_repo {
         use $crate::git::repo::is_git_repo;
 
         if !is_git_repo() {
-            use std::process::ExitCode;
-            use $crate::print_error;
+            use $crate::return_error;
 
-            print_error!("not a git repository");
-            return ExitCode::FAILURE;
+            return_error!("not a git repository");
         }
     };
 }
