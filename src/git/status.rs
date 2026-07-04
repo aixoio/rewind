@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use anyhow::Ok;
+use anyhow::{Ok, anyhow};
 
 #[derive(Debug, PartialEq, Eq, Default)]
 pub struct StatusResult<'a> {
@@ -33,6 +33,13 @@ pub fn fetch_status() -> anyhow::Result<String> {
         .arg("--porcelain")
         .output()?;
     let stdout = String::from_utf8(output.stdout)?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
 
     Ok(stdout)
 }

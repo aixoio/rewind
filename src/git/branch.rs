@@ -8,6 +8,13 @@ pub fn current_branch() -> anyhow::Result<String> {
         .arg("--show-current")
         .output()?;
 
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
     Ok(String::from_utf8(output.stdout)?.trim().to_string())
 }
 
@@ -18,6 +25,13 @@ pub fn all_branches() -> anyhow::Result<String> {
         .arg("--list")
         .arg("--format=%(refname:short)")
         .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
 
     Ok(String::from_utf8(output.stdout)?)
 }

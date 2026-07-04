@@ -59,6 +59,13 @@ pub fn fetch_log() -> anyhow::Result<String> {
         .output()?;
     let stdout = String::from_utf8(output.stdout)?;
 
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
     Ok(stdout)
 }
 
@@ -71,6 +78,13 @@ pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
         .arg(limit.to_string())
         .output()?;
     let stdout = String::from_utf8(output.stdout)?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
 
     Ok(stdout)
 }
