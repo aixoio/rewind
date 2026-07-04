@@ -5,6 +5,7 @@ use crate::{
     git::commits::{fetch_commit_info, parse_commit_info},
     return_error,
 };
+use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 pub fn run(hash: String) -> ExitCode {
@@ -32,6 +33,19 @@ pub fn run(hash: String) -> ExitCode {
     println!("   {} {}", "Date:".bright_blue().bold(), commit_info.date());
     println!("     {}", commit_info.hash().bright_black());
     println!("     {}", commit_info.message());
+
+    println!();
+
+    let check = match Confirm::new("Confirm revert").with_default(false).prompt() {
+        Ok(check) => check,
+        Err(err) => {
+            return_error!(err);
+        }
+    };
+    if !check {
+        return ExitCode::SUCCESS;
+    }
+    println!();
 
     ExitCode::SUCCESS
 }
