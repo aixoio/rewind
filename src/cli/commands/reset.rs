@@ -2,8 +2,9 @@ use crate::{check_for_git_repo, git::repo, handle_error};
 
 use inquire::Confirm;
 use owo_colors::OwoColorize;
+use std::process::ExitCode;
 
-pub fn run() {
+pub fn run() -> ExitCode {
     check_for_git_repo!();
 
     let prompt = match Confirm::new("Reset Repository")
@@ -14,11 +15,11 @@ pub fn run() {
         Ok(prompt) => prompt,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
     if !prompt {
-        return;
+        return ExitCode::FAILURE;
     }
 
     println!("{}", "Staging all files...".green());
@@ -36,4 +37,6 @@ pub fn run() {
         "{}",
         "All uncommitted changes have been discarded".bright_black()
     );
+
+    ExitCode::SUCCESS
 }

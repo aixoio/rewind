@@ -6,15 +6,16 @@ use crate::{
     },
 };
 use owo_colors::OwoColorize;
+use std::process::ExitCode;
 
-pub fn run() {
+pub fn run() -> ExitCode {
     check_for_git_repo!();
 
     let branch = match current_branch() {
         Ok(branch) => branch,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
 
@@ -25,14 +26,14 @@ pub fn run() {
         Ok(status) => status,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
     let status = parse_status(&status);
 
     if status.total_files() == 0 {
         println!("{}", "No changes to commit.".bright_black());
-        return;
+        return ExitCode::SUCCESS;
     }
 
     if !status.staged().is_empty() {
@@ -58,4 +59,6 @@ pub fn run() {
             println!("     {}", file);
         }
     }
+
+    ExitCode::SUCCESS
 }

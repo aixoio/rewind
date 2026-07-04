@@ -1,8 +1,9 @@
 use crate::{check_for_git_repo, git::remote, handle_error};
 
 use owo_colors::OwoColorize;
+use std::process::ExitCode;
 
-pub fn run() {
+pub fn run() -> ExitCode {
     check_for_git_repo!();
 
     match remote::upstream() {
@@ -23,4 +24,6 @@ pub fn run() {
             println!("{}", "Upstream set and changes pushed".bright_black());
         }
     };
+
+    ExitCode::SUCCESS
 }

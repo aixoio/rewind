@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use crate::{
     check_for_git_repo,
     git::{
@@ -9,7 +11,7 @@ use crate::{
 
 use owo_colors::OwoColorize;
 
-pub fn run(limit: Option<usize>, show_all: bool) {
+pub fn run(limit: Option<usize>, show_all: bool) -> ExitCode {
     check_for_git_repo!();
 
     let limit = limit.unwrap_or(10);
@@ -23,7 +25,7 @@ pub fn run(limit: Option<usize>, show_all: bool) {
         Ok(commits) => commits,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
 
@@ -53,10 +55,12 @@ pub fn run(limit: Option<usize>, show_all: bool) {
     }
 
     let Ok(status) = fetch_status() else {
-        return;
+        return ExitCode::FAILURE;
     };
 
     if parse_status(&status).total_files() != 0 {
         println!("{}", "Uncommitted changes".yellow().bold());
     }
+
+    ExitCode::SUCCESS
 }

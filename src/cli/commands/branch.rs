@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use inquire::Confirm;
 use owo_colors::OwoColorize;
 
@@ -10,7 +12,7 @@ use crate::{
         },
         repo,
     },
-    handle_error,
+    handle_error, print_error,
 };
 
 use clap::Subcommand;
@@ -24,22 +26,20 @@ pub enum BranchCommands {
     },
 }
 
-pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
+pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) -> ExitCode {
     check_for_git_repo!();
 
     if name.is_none() && sub_command.is_none() {
-        branch_list();
-        return;
+        return branch_list();
     }
 
     if let Some(name) = name {
-        branch_create_or_switch(name);
-        return;
+        return branch_create_or_switch(name);
     }
 
     let Some(sub_command) = sub_command else {
-        eprintln!("{}", "invalid args".bold().bright_red());
-        return;
+        print_error!("invalid args");
+        return ExitCode::FAILURE;
     };
 
     match sub_command {
@@ -47,15 +47,15 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) {
     }
 }
 
-fn branch_delete(name: String, remote: bool) {
+fn branch_delete(name: String, remote: bool) -> ExitCode {
     let Ok(current_branch) = current_branch() else {
         eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return;
+        return ExitCode::FAILURE;
     };
 
     if name.trim() == current_branch.trim() {
         eprintln!("{}", "cannot delete current branch".bright_red().bold());
-        return;
+        return ExitCode::FAILURE;
     }
 
     if !branch_exists(&name) {
@@ -65,7 +65,7 @@ fn branch_delete(name: String, remote: bool) {
                 .bright_red()
                 .bold()
         );
-        return;
+        return ExitCode::FAILURE;
     }
 
     let message = if remote {
@@ -77,11 +77,11 @@ fn branch_delete(name: String, remote: bool) {
         Ok(check) => check,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
     if !check {
-        return;
+        return ExitCode::FAILURE;
     }
 
     println!("{} {}", "Deleting branch".green(), name);
@@ -93,12 +93,14 @@ fn branch_delete(name: String, remote: bool) {
     }
 
     println!("{} {}", "Deleted branch:".green(), name.trim().bold());
+
+    ExitCode::SUCCESS
 }
 
-fn branch_list() {
+fn branch_list() -> ExitCode {
     let Ok(current_branch) = current_branch() else {
         eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return;
+        return ExitCode::FAILURE;
     };
 
     println!("On branch {}", current_branch.bold());
@@ -106,7 +108,7 @@ fn branch_list() {
 
     let Ok(branches) = all_branches() else {
         eprintln!("{}", "cannot get all branches".bright_red().bold());
-        return;
+        return ExitCode::FAILURE;
     };
     let branches = parse_branch_names(&branches);
 
@@ -119,12 +121,14 @@ fn branch_list() {
 
         println!("     {}", branch);
     }
+
+    ExitCode::SUCCESS
 }
 
-fn branch_create_or_switch(name: String) {
+fn branch_create_or_switch(name: String) -> ExitCode {
     let Ok(current_branch) = current_branch() else {
         eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return;
+        return ExitCode::FAILURE;
     };
 
     println!("On branch {}", current_branch.bold());
@@ -139,4 +143,6 @@ fn branch_create_or_switch(name: String) {
     handle_error!(repo::checkout(name.trim()));
 
     println!("{} {}", "Switched to branch:".green(), name.trim().bold());
+
+    ExitCode::SUCCESS
 }

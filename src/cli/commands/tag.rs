@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::Subcommand;
 
 use inquire::Confirm;
@@ -26,7 +28,7 @@ pub enum TagCommand {
     Push,
 }
 
-pub fn run(command: TagCommand) {
+pub fn run(command: TagCommand) -> ExitCode {
     check_for_git_repo!();
 
     match command {
@@ -37,15 +39,17 @@ pub fn run(command: TagCommand) {
     }
 }
 
-fn push_tags() {
+fn push_tags() -> ExitCode {
     println!("{}", "Pushing all tags".green());
 
     handle_error!(push_all_tags());
 
     println!("{}", "All tags pushed!".bright_green(),);
+
+    ExitCode::SUCCESS
 }
 
-fn delete_tag(name: String) {
+fn delete_tag(name: String) -> ExitCode {
     println!("{} {}", "Deleting tag:".green(), name.green().bold());
 
     let help_message = format!("Are you sure you want to delete tag {}?", name);
@@ -57,20 +61,22 @@ fn delete_tag(name: String) {
         Ok(check) => check,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
     if !check {
-        return;
+        return ExitCode::FAILURE;
     }
 
     handle_error!(tag::delete_tag(&name));
 
     println!("{}", "Deleted tag successfully!".bright_green(),);
     println!("{} {}", "Tag:".bright_black(), name.bold());
+
+    ExitCode::SUCCESS
 }
 
-fn create_tag(name: String, message: Option<String>) {
+fn create_tag(name: String, message: Option<String>) -> ExitCode {
     match message {
         Some(message) => {
             println!(
@@ -98,16 +104,18 @@ fn create_tag(name: String, message: Option<String>) {
             println!("{} {}", "Tag:".bright_black(), name.bold());
         }
     }
+
+    ExitCode::SUCCESS
 }
 
-fn list_tags() {
+fn list_tags() -> ExitCode {
     println!("{}", "Tags:".blue().bold());
 
     let stdout = match fetch_all_tags() {
         Ok(stdout) => stdout,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
     let tags: Vec<_> = parse_git_tags(&stdout).collect();
@@ -124,4 +132,6 @@ fn list_tags() {
         );
         println!("        {}", tag.subject().cyan());
     }
+
+    ExitCode::SUCCESS
 }

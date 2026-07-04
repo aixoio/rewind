@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use crate::{
     check_for_git_repo,
     git::{
@@ -9,7 +11,7 @@ use crate::{
 
 use owo_colors::OwoColorize;
 
-pub fn run(source: String, target: String) {
+pub fn run(source: String, target: String) -> ExitCode {
     check_for_git_repo!();
 
     if !branch_exists(&source) {
@@ -19,7 +21,7 @@ pub fn run(source: String, target: String) {
             source.bright_red().bold(),
             "does not exist".red()
         );
-        return;
+        return ExitCode::FAILURE;
     }
 
     if !branch_exists(&target) {
@@ -29,12 +31,12 @@ pub fn run(source: String, target: String) {
             target.bright_red().bold(),
             "does not exist".red()
         );
-        return;
+        return ExitCode::FAILURE;
     }
 
     let Ok(current_branch) = current_branch() else {
         eprintln!("{}", "cannot get current branch".red().bold());
-        return;
+        return ExitCode::FAILURE;
     };
 
     if current_branch.trim() != target.trim() {
@@ -60,4 +62,6 @@ pub fn run(source: String, target: String) {
         "->".green(),
         target.bright_green().bold()
     );
+
+    ExitCode::SUCCESS
 }

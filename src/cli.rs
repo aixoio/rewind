@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use clap::{Parser, Subcommand};
 
 use crate::cli::commands::{
@@ -67,7 +69,7 @@ pub enum Commands {
 }
 
 impl Commands {
-    pub fn run(self) {
+    pub fn run(self) -> ExitCode {
         match self {
             Commands::Status => status::run(),
             Commands::Add { paths } => add::run(paths),

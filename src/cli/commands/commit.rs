@@ -1,3 +1,5 @@
+use std::process::ExitCode;
+
 use inquire::{
     Text,
     ui::{Color, RenderConfig, StyleSheet},
@@ -14,7 +16,7 @@ use crate::{
     handle_error,
 };
 
-pub fn run(message: Option<String>) {
+pub fn run(message: Option<String>) -> ExitCode {
     check_for_git_repo!();
 
     println!();
@@ -30,7 +32,7 @@ pub fn run(message: Option<String>) {
         Ok(status) => status,
         Err(err) => {
             eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return;
+            return ExitCode::FAILURE;
         }
     };
 
@@ -74,7 +76,7 @@ pub fn run(message: Option<String>) {
                     "error:".bright_red().bold(),
                     format!("Failed to read commit message: {err}").bold(),
                 );
-                return;
+                return ExitCode::FAILURE;
             }
         },
     };
@@ -89,4 +91,6 @@ pub fn run(message: Option<String>) {
         "Message:".bright_black().bold(),
         message.bright_black()
     );
+
+    ExitCode::SUCCESS
 }
