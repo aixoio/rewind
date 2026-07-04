@@ -1,28 +1,28 @@
 use crate::getter;
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct CommitInfo {
-    hash: String,
-    message: String,
-    author: String,
-    date: String,
+pub struct CommitInfo<'a> {
+    hash: &'a str,
+    message: &'a str,
+    author: &'a str,
+    date: &'a str,
 }
 
-impl CommitInfo {
-    getter!(hash, String);
-    getter!(message, String);
-    getter!(author, String);
-    getter!(date, String);
+impl<'a> CommitInfo<'a> {
+    getter!(hash, &'a str);
+    getter!(message, &'a str);
+    getter!(author, &'a str);
+    getter!(date, &'a str);
 }
 
 /// input must come from `git show --no-patch --format=%H%x1f%s%x1f%an%x1f%ad --date=short`
-pub fn parse_commit_info(input: &str) -> Option<CommitInfo> {
+pub fn parse_commit_info<'a>(input: &'a str) -> Option<CommitInfo<'a>> {
     let mut data = input.trim().split('\x1f');
 
-    let hash = data.next()?.to_string();
-    let message = data.next()?.to_string();
-    let author = data.next()?.to_string();
-    let date = data.next()?.to_string();
+    let hash = data.next()?;
+    let message = data.next()?;
+    let author = data.next()?;
+    let date = data.next()?;
 
     Some(CommitInfo {
         hash,
@@ -42,10 +42,10 @@ mod tests {
 
         let info = parse_commit_info(input).unwrap();
 
-        assert_eq!(info.hash(), &"abc123".to_string());
-        assert_eq!(info.message(), &"Initial commit".to_string());
-        assert_eq!(info.author(), &"Jane Doe".to_string());
-        assert_eq!(info.date(), &"2026-07-04".to_string());
+        assert_eq!(info.hash(), &"abc123");
+        assert_eq!(info.message(), &"Initial commit");
+        assert_eq!(info.author(), &"Jane Doe");
+        assert_eq!(info.date(), &"2026-07-04");
     }
 
     #[test]
@@ -57,10 +57,10 @@ mod tests {
         assert_eq!(
             info,
             CommitInfo {
-                hash: "abc123".to_string(),
-                message: "Fix bug".to_string(),
-                author: "John Smith".to_string(),
-                date: "2026-01-15".to_string(),
+                hash: "abc123",
+                message: "Fix bug",
+                author: "John Smith",
+                date: "2026-01-15",
             }
         );
     }
@@ -83,10 +83,10 @@ mod tests {
         assert_eq!(
             info,
             CommitInfo {
-                hash: "abc123".to_string(),
-                message: "Initial commit".to_string(),
-                author: "Jane Doe".to_string(),
-                date: "2026-07-04".to_string(),
+                hash: "abc123",
+                message: "Initial commit",
+                author: "Jane Doe",
+                date: "2026-07-04",
             }
         );
     }
@@ -100,10 +100,10 @@ mod tests {
         assert_eq!(
             info,
             CommitInfo {
-                hash: "".to_string(),
-                message: "".to_string(),
-                author: "".to_string(),
-                date: "".to_string(),
+                hash: "",
+                message: "",
+                author: "",
+                date: "",
             }
         );
     }
