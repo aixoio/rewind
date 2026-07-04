@@ -7,7 +7,7 @@ use crate::{
         repo::{commit, revert},
         status::fetch_status,
     },
-    handle_error, return_error,
+    handle_error, match_error, return_error,
 };
 use inquire::Confirm;
 use owo_colors::OwoColorize;
@@ -55,12 +55,7 @@ pub fn run(hash: String) -> ExitCode {
 
     handle_error!(revert(commit_info.hash()));
 
-    let status = match fetch_status() {
-        Ok(status) => status,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let status = match_error!(fetch_status());
     if status.contains("UU ") {
         return_error!(
             "Merge conflicts detected. Please resolve them and then run 'git commit' to complete the revert."

@@ -22,9 +22,12 @@ macro_rules! return_error {
 macro_rules! match_error {
     ($ex:expr) => {
         match $ex {
-            use $crate::return_error;
+            Ok(r) => r,
+            Err(err) => {
+                use $crate::return_error;
 
-            return_error!(err);
+                return_error!(err);
+            }
         }
     };
 }
