@@ -119,3 +119,20 @@ pub fn reset() -> anyhow::Result<()> {
 
     Ok(())
 }
+
+pub fn revert(hash: &str) -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("revert")
+        .arg("--no-commit")
+        .arg(hash)
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
