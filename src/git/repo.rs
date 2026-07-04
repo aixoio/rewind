@@ -1,4 +1,5 @@
 use std::{
+    ffi::OsStr,
     path::Path,
     process::{Command, Stdio},
 };
@@ -55,11 +56,16 @@ pub fn init_repo() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn diff() -> anyhow::Result<()> {
+pub fn diff<I, S>(args: I) -> anyhow::Result<()>
+where
+    I: IntoIterator<Item = S>,
+    S: AsRef<OsStr>,
+{
     let output = Command::new("git")
         .arg("--no-pager")
         .arg("diff")
         .arg("--color=always")
+        .args(args)
         .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stdin(Stdio::inherit())
