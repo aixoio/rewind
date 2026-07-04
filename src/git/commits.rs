@@ -28,8 +28,8 @@ impl<'a> CommitInfo<'a> {
             return Err(anyhow!("missing hash"));
         }
 
-        if date.trim().is_empty() {
-            return Err(anyhow!("missing date"));
+        if message.trim().is_empty() {
+            return Err(anyhow!("missing message"));
         }
 
         if author.trim().is_empty() {
