@@ -18,7 +18,7 @@ pub fn run() -> ExitCode {
         }
     };
     if !prompt {
-        return ExitCode::FAILURE;
+        return ExitCode::SUCCESS;
     }
 
     println!("{}", "Staging all files...".green());
