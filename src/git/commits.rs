@@ -1,3 +1,5 @@
+use anyhow::anyhow;
+
 use crate::getter;
 
 #[derive(Debug, PartialEq, Eq)]
@@ -13,6 +15,36 @@ impl<'a> CommitInfo<'a> {
     getter!(message, &'a str);
     getter!(author, &'a str);
     getter!(date, &'a str);
+
+    fn build(
+        hash: &'a str,
+        message: &'a str,
+        author: &'a str,
+        date: &'a str,
+    ) -> anyhow::Result<CommitInfo<'a>> {
+        if hash.trim().is_empty() {
+            return Err(anyhow!("missing hash"));
+        }
+
+        if date.trim().is_empty() {
+            return Err(anyhow!("missing date"));
+        }
+
+        if author.trim().is_empty() {
+            return Err(anyhow!("missing author"));
+        }
+
+        if date.trim().is_empty() {
+            return Err(anyhow!("missing date"));
+        }
+
+        Ok(CommitInfo {
+            hash,
+            message,
+            author,
+            date,
+        })
+    }
 }
 
 /// input must come from `git show --no-patch --format=%H%x1f%s%x1f%an%x1f%ad --date=short`
@@ -24,12 +56,11 @@ pub fn parse_commit_info<'a>(input: &'a str) -> Option<CommitInfo<'a>> {
     let author = data.next()?;
     let date = data.next()?;
 
-    Some(CommitInfo {
-        hash,
-        message,
-        author,
-        date,
-    })
+    let Ok(commit) = CommitInfo::build(hash, message, author, date) else {
+        return None;
+    };
+
+    Some(commit)
 }
 
 #[cfg(test)]
@@ -95,16 +126,8 @@ mod tests {
     fn parse_commit_info_allows_empty_fields() {
         let input = "\x1f\x1f\x1f";
 
-        let info = parse_commit_info(input).unwrap();
+        let info = parse_commit_info(input);
 
-        assert_eq!(
-            info,
-            CommitInfo {
-                hash: "",
-                message: "",
-                author: "",
-                date: "",
-            }
-        );
+        assert!(info.is_none());
     }
 }
