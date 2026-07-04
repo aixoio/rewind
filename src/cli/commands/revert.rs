@@ -4,9 +4,10 @@ use crate::{
     check_for_git_repo,
     git::{
         commits::{fetch_commit_info, parse_commit_info},
+        repo::commit,
         status::fetch_status,
     },
-    return_error,
+    handle_error, return_error,
 };
 use inquire::Confirm;
 use owo_colors::OwoColorize;
@@ -61,6 +62,23 @@ pub fn run(hash: String) -> ExitCode {
             "Merge conflicts detected. Please resolve them and then run 'git commit' to complete the revert."
         );
     }
+
+    println!("{}", "Creating revert commit".green());
+
+    let message = format!(
+        "revert {}: {}",
+        &commit_info.hash()[..7],
+        commit_info.message()
+    );
+
+    handle_error!(commit(&message));
+
+    println!("{}", "Revert successful!".bright_green().bold());
+    println!(
+        "{} {}",
+        "Created commit:".bright_black().bold(),
+        message.bright_black()
+    );
 
     ExitCode::SUCCESS
 }
