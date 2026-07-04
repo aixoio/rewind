@@ -56,6 +56,10 @@ pub fn init_repo() -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn diff_stats() -> anyhow::Result<()> {
+    diff(["--stat"])
+}
+
 pub fn diff<I, S>(args: I) -> anyhow::Result<()>
 where
     I: IntoIterator<Item = S>,
