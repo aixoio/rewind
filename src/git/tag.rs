@@ -2,19 +2,13 @@ use std::process::{Command, Stdio};
 
 use anyhow::anyhow;
 
+use crate::getter;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct Tag<'a> {
     name: &'a str,
     relative_date: &'a str,
     subject: &'a str,
-}
-
-macro_rules! getter {
-    ($name:ident, $type:ty) => {
-        pub fn $name(&self) -> &$type {
-            &self.$name
-        }
-    };
 }
 
 impl<'a> Tag<'a> {

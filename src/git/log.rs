@@ -2,20 +2,14 @@ use std::process::Command;
 
 use anyhow::anyhow;
 
+use crate::getter;
+
 #[derive(Debug, PartialEq, Eq)]
 pub struct Commit<'a> {
     hash: &'a str,
     date: &'a str,
     refs: &'a str,
     subject: &'a str,
-}
-
-macro_rules! getter {
-    ($name:ident, $type:ty) => {
-        pub fn $name(&self) -> &$type {
-            &self.$name
-        }
-    };
 }
 
 impl<'a> Commit<'a> {

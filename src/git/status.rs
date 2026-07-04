@@ -2,19 +2,13 @@ use std::process::Command;
 
 use anyhow::{Ok, anyhow};
 
+use crate::getter;
+
 #[derive(Debug, PartialEq, Eq, Default)]
 pub struct StatusResult<'a> {
     staged: Vec<&'a str>,
     unstaged: Vec<&'a str>,
     untracked: Vec<&'a str>,
-}
-
-macro_rules! getter {
-    ($name:ident, $type:ty) => {
-        pub fn $name(&self) -> &$type {
-            &self.$name
-        }
-    };
 }
 
 impl<'a> StatusResult<'a> {
