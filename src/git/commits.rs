@@ -1,3 +1,5 @@
+use std::process::Command;
+
 use anyhow::anyhow;
 
 use crate::getter;
@@ -47,7 +49,28 @@ impl<'a> CommitInfo<'a> {
     }
 }
 
-/// input must come from `git show --no-patch --format=%H%x1f%s%x1f%an%x1f%ad --date=short`
+pub fn fetch_commit_info(hash: &str) -> anyhow::Result<String> {
+    let output = Command::new("git")
+        .arg("show")
+        .arg("--no-patch")
+        .arg("--format=%H%x1f%s%x1f%an%x1f%ad")
+        .arg("--date=short")
+        .arg(hash)
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    let stdout = String::from_utf8(output.stdout)?;
+
+    Ok(stdout)
+}
+
+/// input must come from `git show --no-patch --format=%H%x1f%s%x1f%an%x1f%ad --date=short [hash]`
 pub fn parse_commit_info<'a>(input: &'a str) -> Option<CommitInfo<'a>> {
     let mut data = input.trim().split('\x1f');
 
