@@ -4,7 +4,7 @@ use crate::{
     check_for_git_repo,
     git::{
         commits::{fetch_commit_info, parse_commit_info},
-        repo::commit,
+        repo::{commit, revert},
         status::fetch_status,
     },
     handle_error, return_error,
@@ -50,6 +50,10 @@ pub fn run(hash: String) -> ExitCode {
         return ExitCode::SUCCESS;
     }
     println!();
+
+    println!("{}", "Preparing revert".green().bold());
+
+    handle_error!(revert(commit_info.hash()));
 
     let status = match fetch_status() {
         Ok(status) => status,
