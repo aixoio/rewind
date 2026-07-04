@@ -2,7 +2,10 @@ use std::process::ExitCode;
 
 use crate::{
     check_for_git_repo,
-    git::commits::{fetch_commit_info, parse_commit_info},
+    git::{
+        commits::{fetch_commit_info, parse_commit_info},
+        status::fetch_status,
+    },
     return_error,
 };
 use inquire::Confirm;
@@ -46,6 +49,18 @@ pub fn run(hash: String) -> ExitCode {
         return ExitCode::SUCCESS;
     }
     println!();
+
+    let status = match fetch_status() {
+        Ok(status) => status,
+        Err(err) => {
+            return_error!(err);
+        }
+    };
+    if status.contains("UU ") {
+        return_error!(
+            "Merge conflicts detected. Please resolve them and then run 'git commit' to complete the revert."
+        );
+    }
 
     ExitCode::SUCCESS
 }
