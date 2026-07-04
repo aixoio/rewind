@@ -6,7 +6,7 @@ use crate::{
         branch::{branch_exists, current_branch},
         repo::{checkout, merge},
     },
-    handle_error,
+    handle_error, return_error,
 };
 
 use owo_colors::OwoColorize;
@@ -15,28 +15,25 @@ pub fn run(source: String, target: String) -> ExitCode {
     check_for_git_repo!();
 
     if !branch_exists(&source) {
-        eprintln!(
+        return_error!(format!(
             "{} {} {}",
             "branch".red(),
             source.bright_red().bold(),
             "does not exist".red()
-        );
-        return ExitCode::FAILURE;
+        ));
     }
 
     if !branch_exists(&target) {
-        eprintln!(
+        return_error!(format!(
             "{} {} {}",
             "branch".red(),
-            target.bright_red().bold(),
+            source.bright_red().bold(),
             "does not exist".red()
-        );
-        return ExitCode::FAILURE;
+        ));
     }
 
     let Ok(current_branch) = current_branch() else {
-        eprintln!("{}", "cannot get current branch".red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot get current branch");
     };
 
     if current_branch.trim() != target.trim() {

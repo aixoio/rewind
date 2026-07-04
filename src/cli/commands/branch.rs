@@ -12,7 +12,7 @@ use crate::{
         },
         repo,
     },
-    handle_error, print_error,
+    handle_error, return_error,
 };
 
 use clap::Subcommand;
@@ -38,8 +38,7 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) -> ExitCod
     }
 
     let Some(sub_command) = sub_command else {
-        print_error!("invalid args");
-        return ExitCode::FAILURE;
+        return_error!("invalid args");
     };
 
     match sub_command {
@@ -49,23 +48,20 @@ pub fn run(name: Option<String>, sub_command: Option<BranchCommands>) -> ExitCod
 
 fn branch_delete(name: String, remote: bool) -> ExitCode {
     let Ok(current_branch) = current_branch() else {
-        eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot get current branch");
     };
 
     if name.trim() == current_branch.trim() {
-        eprintln!("{}", "cannot delete current branch".bright_red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot delete current branch");
     }
 
     if !branch_exists(&name) {
-        eprintln!(
+        return_error!(format!(
             "{}",
             "cannot delete branch as it does not exist"
                 .bright_red()
                 .bold()
-        );
-        return ExitCode::FAILURE;
+        ));
     }
 
     let message = if remote {
@@ -76,12 +72,11 @@ fn branch_delete(name: String, remote: bool) -> ExitCode {
     let check = match Confirm::new(&message).with_default(false).prompt() {
         Ok(check) => check,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
     if !check {
-        return ExitCode::FAILURE;
+        return ExitCode::SUCCESS;
     }
 
     println!("{} {}", "Deleting branch".green(), name);
@@ -99,16 +94,14 @@ fn branch_delete(name: String, remote: bool) -> ExitCode {
 
 fn branch_list() -> ExitCode {
     let Ok(current_branch) = current_branch() else {
-        eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot get current branch");
     };
 
     println!("On branch {}", current_branch.bold());
     println!();
 
     let Ok(branches) = all_branches() else {
-        eprintln!("{}", "cannot get all branches".bright_red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot get all branches");
     };
     let branches = parse_branch_names(&branches);
 
@@ -127,8 +120,7 @@ fn branch_list() -> ExitCode {
 
 fn branch_create_or_switch(name: String) -> ExitCode {
     let Ok(current_branch) = current_branch() else {
-        eprintln!("{}", "cannot get current branch".bright_red().bold());
-        return ExitCode::FAILURE;
+        return_error!("cannot get current branch");
     };
 
     println!("On branch {}", current_branch.bold());

@@ -7,6 +7,7 @@ use crate::{
         log::{fetch_log, fetch_log_with_limit, parse_commit_log},
         status::{fetch_status, parse_status},
     },
+    return_error,
 };
 
 use owo_colors::OwoColorize;
@@ -24,8 +25,7 @@ pub fn run(limit: Option<usize>, show_all: bool) -> ExitCode {
     let commits = match commits {
         Ok(commits) => commits,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
 

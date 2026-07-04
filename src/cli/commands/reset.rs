@@ -1,4 +1,4 @@
-use crate::{check_for_git_repo, git::repo, handle_error};
+use crate::{check_for_git_repo, git::repo, handle_error, return_error};
 
 use inquire::Confirm;
 use owo_colors::OwoColorize;
@@ -14,8 +14,7 @@ pub fn run() -> ExitCode {
     {
         Ok(prompt) => prompt,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
     if !prompt {

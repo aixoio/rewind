@@ -13,7 +13,7 @@ use crate::{
         repo::{add_paths, commit},
         status::fetch_status,
     },
-    handle_error,
+    handle_error, return_error,
 };
 
 pub fn run(message: Option<String>) -> ExitCode {
@@ -31,8 +31,7 @@ pub fn run(message: Option<String>) -> ExitCode {
     let raw_status = match fetch_status() {
         Ok(status) => status,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
 
@@ -71,12 +70,11 @@ pub fn run(message: Option<String>) -> ExitCode {
         {
             Ok(msg) => msg,
             Err(err) => {
-                eprintln!(
+                return_error!(format!(
                     "{} {}",
                     "error:".bright_red().bold(),
-                    format!("Failed to read commit message: {err}").bold(),
-                );
-                return ExitCode::FAILURE;
+                    format!("failed to read commit message: {err}").bold(),
+                ));
             }
         },
     };

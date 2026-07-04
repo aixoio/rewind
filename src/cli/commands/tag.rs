@@ -11,7 +11,7 @@ use crate::{
         self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
         push_all_tags,
     },
-    handle_error,
+    handle_error, return_error,
 };
 
 #[derive(Subcommand, Debug)]
@@ -60,12 +60,11 @@ fn delete_tag(name: String) -> ExitCode {
     {
         Ok(check) => check,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
     if !check {
-        return ExitCode::FAILURE;
+        return ExitCode::SUCCESS;
     }
 
     handle_error!(tag::delete_tag(&name));
@@ -114,8 +113,7 @@ fn list_tags() -> ExitCode {
     let stdout = match fetch_all_tags() {
         Ok(stdout) => stdout,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
     let tags: Vec<_> = parse_git_tags(&stdout).collect();

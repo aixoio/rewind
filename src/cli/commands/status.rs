@@ -4,6 +4,7 @@ use crate::{
         branch::current_branch,
         status::{fetch_status, parse_status},
     },
+    return_error,
 };
 use owo_colors::OwoColorize;
 use std::process::ExitCode;
@@ -14,8 +15,7 @@ pub fn run() -> ExitCode {
     let branch = match current_branch() {
         Ok(branch) => branch,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
 
@@ -25,8 +25,7 @@ pub fn run() -> ExitCode {
     let status = match fetch_status() {
         Ok(status) => status,
         Err(err) => {
-            eprintln!("{} {}", "error:".bright_red().bold(), err.bold());
-            return ExitCode::FAILURE;
+            return_error!(err);
         }
     };
     let status = parse_status(&status);
