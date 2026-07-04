@@ -60,6 +60,7 @@ pub fn diff() -> anyhow::Result<()> {
         .arg("--no-pager")
         .arg("diff")
         .arg("--color=always")
+        .stderr(Stdio::inherit())
         .stdout(Stdio::inherit())
         .stdin(Stdio::inherit())
         .output()?;
