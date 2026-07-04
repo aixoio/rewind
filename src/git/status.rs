@@ -1,6 +1,6 @@
 use std::process::Command;
 
-use anyhow::{Ok, anyhow};
+use anyhow::anyhow;
 
 use crate::getter;
 
