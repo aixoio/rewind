@@ -19,6 +19,17 @@ macro_rules! return_error {
 }
 
 #[macro_export]
+macro_rules! match_error {
+    ($ex:expr) => {
+        match $ex {
+            use $crate::return_error;
+
+            return_error!(err);
+        }
+    };
+}
+
+#[macro_export]
 macro_rules! handle_error {
     ($ex:expr) => {
         if let Err(err) = $ex {
