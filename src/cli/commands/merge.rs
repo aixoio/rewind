@@ -27,7 +27,7 @@ pub fn run(source: String, target: String) -> ExitCode {
         return_error!(format!(
             "{} {} {}",
             "branch".red(),
-            source.bright_red().bold(),
+            target.bright_red().bold(),
             "does not exist".red()
         ));
     }
