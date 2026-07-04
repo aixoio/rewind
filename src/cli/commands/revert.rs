@@ -15,12 +15,7 @@ use owo_colors::OwoColorize;
 pub fn run(hash: String) -> ExitCode {
     check_for_git_repo!();
 
-    let commit_info = match fetch_commit_info(&hash) {
-        Ok(commit_info) => commit_info,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let commit_info = match_error!(fetch_commit_info(&hash));
     let commit_info = match parse_commit_info(&commit_info) {
         Some(commit_info) => commit_info,
         None => {
@@ -40,12 +35,7 @@ pub fn run(hash: String) -> ExitCode {
 
     println!();
 
-    let check = match Confirm::new("Confirm revert").with_default(false).prompt() {
-        Ok(check) => check,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let check = match_error!(Confirm::new("Confirm revert").with_default(false).prompt());
     if !check {
         return ExitCode::SUCCESS;
     }
