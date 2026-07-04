@@ -82,7 +82,6 @@ pub fn push_all_tags() -> anyhow::Result<()> {
         .arg("push")
         .arg("--tags")
         .stdout(Stdio::inherit())
-        .stderr(Stdio::inherit())
         .stdin(Stdio::inherit())
         .output()?;
 
