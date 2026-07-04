@@ -5,7 +5,7 @@ use clap::{Parser, Subcommand};
 use crate::cli::commands::{
     add,
     branch::{self, BranchCommands},
-    checkout, commit, diff, init, log, merge, pull, push, reset, status,
+    checkout, commit, diff, init, log, merge, pull, push, reset, revert, status,
     tag::{self, TagCommand},
 };
 
@@ -69,6 +69,9 @@ pub enum Commands {
         #[command(subcommand)]
         command: TagCommand,
     },
+    Revert {
+        hash: String,
+    },
 }
 
 impl Commands {
@@ -87,6 +90,7 @@ impl Commands {
             Commands::Checkout { target } => checkout::run(target),
             Commands::Reset => reset::run(),
             Commands::Tag { command } => tag::run(command),
+            Commands::Revert { hash } => revert::run(hash),
         }
     }
 }

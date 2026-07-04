@@ -9,6 +9,7 @@ pub mod merge;
 pub mod pull;
 pub mod push;
 pub mod reset;
+pub mod revert;
 pub mod status;
 pub mod tag;
 mod utils;
