@@ -45,7 +45,9 @@ pub enum Commands {
     },
     #[command(alias = "d")]
     Diff {
-        #[arg(trailing_var_arg = true)]
+        #[arg(short, long, conflicts_with = "args")]
+        stat: bool,
+        #[arg(trailing_var_arg = true, conflicts_with = "stat")]
         args: Option<Vec<String>>,
     },
     #[command(alias = "b")]
@@ -84,7 +86,7 @@ impl Commands {
             Commands::Push => push::run(),
             Commands::Pull => pull::run(),
             Commands::Log { limit, show_all } => log::run(limit, show_all),
-            Commands::Diff { args } => diff::run(args),
+            Commands::Diff { stat, args } => diff::run(stat, args),
             Commands::Branch { name, sub_command } => branch::run(name, sub_command),
             Commands::Merge { source, target } => merge::run(source, target),
             Commands::Checkout { target } => checkout::run(target),
