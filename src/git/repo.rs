@@ -56,7 +56,7 @@ pub fn init_repo() -> anyhow::Result<()> {
     Ok(())
 }
 
-pub fn diff_stats() -> anyhow::Result<()> {
+pub fn diff_stat() -> anyhow::Result<()> {
     diff(["--stat"])
 }
 
