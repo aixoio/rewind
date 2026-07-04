@@ -4,7 +4,7 @@ use crate::{
         branch::current_branch,
         status::{fetch_status, parse_status},
     },
-    return_error,
+    match_error,
 };
 use owo_colors::OwoColorize;
 use std::process::ExitCode;
@@ -12,22 +12,12 @@ use std::process::ExitCode;
 pub fn run() -> ExitCode {
     check_for_git_repo!();
 
-    let branch = match current_branch() {
-        Ok(branch) => branch,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let branch = match_error!(current_branch());
 
     println!("On branch {}", branch.bold());
     println!();
 
-    let status = match fetch_status() {
-        Ok(status) => status,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let status = match_error!(fetch_status());
     let status = parse_status(&status);
 
     if status.total_files() == 0 {

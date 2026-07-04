@@ -11,7 +11,7 @@ use crate::{
         self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
         push_all_tags,
     },
-    handle_error, return_error,
+    handle_error, match_error, return_error,
 };
 
 #[derive(Subcommand, Debug)]
@@ -110,12 +110,7 @@ fn create_tag(name: String, message: Option<String>) -> ExitCode {
 fn list_tags() -> ExitCode {
     println!("{}", "Tags:".blue().bold());
 
-    let stdout = match fetch_all_tags() {
-        Ok(stdout) => stdout,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let stdout = match_error!(fetch_all_tags());
     let tags: Vec<_> = parse_git_tags(&stdout).collect();
 
     if tags.is_empty() {

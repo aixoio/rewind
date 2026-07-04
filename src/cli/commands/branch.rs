@@ -12,7 +12,7 @@ use crate::{
         },
         repo,
     },
-    handle_error, return_error,
+    handle_error, match_error, return_error,
 };
 
 use clap::Subcommand;
@@ -69,12 +69,7 @@ fn branch_delete(name: String, remote: bool) -> ExitCode {
     } else {
         format!("You are sure you want to delete the branch {name}?")
     };
-    let check = match Confirm::new(&message).with_default(false).prompt() {
-        Ok(check) => check,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let check = match_error!(Confirm::new(&message).with_default(false).prompt());
     if !check {
         return ExitCode::SUCCESS;
     }
