@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_parse_status_basic() {
-        let input = vec![" M src/main.rs", "MM src/lib.rs", "D  README.md"].join("\n");
+        let input = " M src/main.rs\nMM src/lib.rs\nD  README.md";
 
         let target = StatusResult {
             staged: vec!["src/lib.rs", "README.md"],
@@ -88,48 +88,48 @@ mod tests {
             ..Default::default()
         };
 
-        assert_eq!(target, parse_status(&input));
+        assert_eq!(target, parse_status(input));
     }
 
     #[test]
     fn test_parse_status_untracked() {
-        let input = vec!["?? notes.txt", "?? src/new_file.rs"].join("\n");
+        let input = "?? notes.txt\n?? src/new_file.rs";
 
         let target = StatusResult {
             untracked: vec!["notes.txt", "src/new_file.rs"],
             ..Default::default()
         };
 
-        assert_eq!(target, parse_status(&input));
+        assert_eq!(target, parse_status(input));
     }
 
     #[test]
     fn test_parse_status_staged_only() {
-        let input = vec!["M  src/main.rs", "A  src/lib.rs", "D  old.txt"].join("\n");
+        let input = "M  src/main.rs\nA  src/lib.rs\nD  old.txt";
 
         let target = StatusResult {
             staged: vec!["src/main.rs", "src/lib.rs", "old.txt"],
             ..Default::default()
         };
 
-        assert_eq!(target, parse_status(&input));
+        assert_eq!(target, parse_status(input));
     }
 
     #[test]
     fn test_parse_status_unstaged_only() {
-        let input = vec![" M src/main.rs", " D old.txt"].join("\n");
+        let input = " M src/main.rs\n D old.txt";
 
         let target = StatusResult {
             unstaged: vec!["src/main.rs", "old.txt"],
             ..Default::default()
         };
 
-        assert_eq!(target, parse_status(&input));
+        assert_eq!(target, parse_status(input));
     }
 
     #[test]
     fn test_parse_status_mixed_staged_and_unstaged() {
-        let input = vec!["MM src/lib.rs", "AM src/new.rs", "MD src/delete_later.rs"].join("\n");
+        let input = "MM src/lib.rs\nAM src/new.rs\nMD src/delete_later.rs";
 
         let target = StatusResult {
             staged: vec!["src/lib.rs", "src/new.rs", "src/delete_later.rs"],
@@ -137,7 +137,7 @@ mod tests {
             ..Default::default()
         };
 
-        assert_eq!(target, parse_status(&input));
+        assert_eq!(target, parse_status(input));
     }
 
     #[test]
