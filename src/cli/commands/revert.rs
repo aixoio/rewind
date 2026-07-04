@@ -46,7 +46,13 @@ pub fn run(hash: String) -> ExitCode {
     handle_error!(revert(commit_info.hash()));
 
     let status = match_error!(fetch_status());
-    if status.contains("UU ") {
+    let has_conflicts = status.lines().any(|line| {
+        matches!(
+            line.get(..2),
+            Some("DD" | "AU" | "UA" | "UD" | "DU" | "AA" | "UU")
+        )
+    });
+    if has_conflicts {
         return_error!(
             "Merge conflicts detected. Please resolve them and then run 'git commit' to complete the revert."
         );
