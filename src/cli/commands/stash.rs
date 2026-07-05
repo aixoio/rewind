@@ -40,6 +40,18 @@ fn stash_create() -> ExitCode {
         return_error!("no changes to stash");
     }
 
+    let files_to_commit = status
+        .staged()
+        .iter()
+        .chain(status.untracked().iter())
+        .chain(status.unstaged().iter());
+
+    println!("  {}", "Files to be stashed:".blue());
+
+    for file in files_to_commit {
+        println!("     {}", file);
+    }
+
     ExitCode::SUCCESS
 }
 
