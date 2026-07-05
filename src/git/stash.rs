@@ -35,6 +35,20 @@ pub fn fetch_stashes() -> anyhow::Result<String> {
     Ok(stdout)
 }
 
+pub fn pop_stash() -> anyhow::Result<String> {
+    let output = Command::new("git").arg("stash").arg("pop").output()?;
+    let stdout = String::from_utf8(output.stdout)?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(stdout)
+}
+
 /// only work with ouput from `git --no-pager stash list --pretty='format:%gd%x1f%cr%x1f%s%x1e'`
 pub fn parse_stashes<'a>(input: &'a str) -> impl Iterator<Item = Stash<'a>> + 'a {
     input.split('\x1e').filter_map(|record| {
