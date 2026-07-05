@@ -13,40 +13,23 @@ impl<'a> Stash<'a> {
 }
 
 /// only work with ouput from `git --no-pager stash list --pretty='format:%gd%x1f%cr%x1f%s%x1e'`
-fn parse_stashes<'a>(input: &'a str) -> Vec<Stash<'a>> {
-    let mut stashes = Vec::new();
-
-    for record in input.split('\x1e') {
+fn parse_stashes<'a>(input: &'a str) -> impl Iterator<Item = Stash<'a>> + 'a {
+    input.split('\x1e').filter_map(|record| {
         if record.is_empty() {
-            continue;
+            return None;
         }
         let mut data = record.split('\x1f');
 
-        let Some(id) = data.next() else {
-            continue;
-        };
-        let id = id.trim();
+        let id = data.next()?.trim();
+        let created = data.next()?.trim();
+        let subject = data.next()?.trim();
 
-        let Some(created) = data.next() else {
-            continue;
-        };
-        let created = created.trim();
-
-        let Some(subject) = data.next() else {
-            continue;
-        };
-        let subject = subject.trim();
-
-        let stash = Stash {
+        Some(Stash {
             id,
             created,
             subject,
-        };
-
-        stashes.push(stash);
-    }
-
-    stashes
+        })
+    })
 }
 
 #[cfg(test)]
@@ -61,6 +44,7 @@ mod tests {
         );
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 2);
 
@@ -78,6 +62,7 @@ mod tests {
         let input = "stash@{0}\x1f5 minutes ago\x1fWIP on main: Test change";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "stash@{0}");
@@ -88,6 +73,7 @@ mod tests {
     #[test]
     fn returns_empty_vec_for_empty_input() {
         let stashes = parse_stashes("");
+        let stashes: Vec<_> = stashes.collect();
 
         assert!(stashes.is_empty());
     }
@@ -97,6 +83,7 @@ mod tests {
         let input = "\x1estash@{0}\x1f1 hour ago\x1fWIP on main: Change\x1e\x1e";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "stash@{0}");
@@ -107,6 +94,7 @@ mod tests {
         let input = "  stash@{0}  \x1f  2 weeks ago  \x1f  WIP on main: Change  \x1e";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "stash@{0}");
@@ -119,6 +107,7 @@ mod tests {
         let input = concat!("stash@{0}\x1e", "stash@{1}\x1f1 day ago\x1fValid stash\x1e",);
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "stash@{1}");
@@ -132,6 +121,7 @@ mod tests {
         );
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "stash@{1}");
@@ -143,6 +133,7 @@ mod tests {
             "stash@{0}\x1f10 seconds ago\x1fWIP on feature/test: abc123 fix: handle spaces\x1e";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(
@@ -156,6 +147,7 @@ mod tests {
         let input = "\x1f\x1f\x1e";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].id, "");
@@ -168,6 +160,7 @@ mod tests {
         let input = "stash@{0}\x1f1 hour ago\x1fValid subject\x1funexpected extra field\x1e";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert_eq!(stashes.len(), 1);
         assert_eq!(stashes[0].subject, "Valid subject");
@@ -178,6 +171,7 @@ mod tests {
         let input = "dvjndfjkvdfkj23546342qw";
 
         let stashes = parse_stashes(input);
+        let stashes: Vec<_> = stashes.collect();
 
         assert!(stashes.is_empty());
     }
