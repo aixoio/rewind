@@ -7,6 +7,7 @@ use crate::{
 };
 
 use clap::Subcommand;
+use inquire::Confirm;
 use owo_colors::OwoColorize;
 
 #[derive(Subcommand, Debug)]
@@ -76,6 +77,17 @@ fn stash_pop() -> ExitCode {
         stash.created().blue(),
         stash.subject().bold()
     );
+    println!();
+
+    let check = match_error!(
+        Confirm::new("Apply this stash?")
+            .with_help_message("This may cause conflicts if files have changed")
+            .with_default(false)
+            .prompt()
+    );
+    if !check {
+        return ExitCode::SUCCESS;
+    }
 
     ExitCode::SUCCESS
 }
