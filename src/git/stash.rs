@@ -59,6 +59,7 @@ pub fn push_stash(message: &str) -> anyhow::Result<()> {
         .arg("stash")
         .arg("push")
         .arg("--include-untracked")
+        .arg("-m")
         .arg(message)
         .stdout(Stdio::inherit())
         .output()?;
