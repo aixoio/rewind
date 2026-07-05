@@ -11,7 +11,7 @@ use crate::{
         self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
         push_all_tags,
     },
-    handle_error, match_error, return_error,
+    handle_error, match_error,
 };
 
 #[derive(Subcommand, Debug)]
@@ -53,16 +53,12 @@ fn delete_tag(name: String) -> ExitCode {
     println!("{} {}", "Deleting tag:".green(), name.green().bold());
 
     let help_message = format!("Are you sure you want to delete tag {}?", name);
-    let check = match Confirm::new("Confirm Tag Deletion")
-        .with_help_message(&help_message)
-        .with_default(false)
-        .prompt()
-    {
-        Ok(check) => check,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let check = match_error!(
+        Confirm::new("Confirm Tag Deletion")
+            .with_help_message(&help_message)
+            .with_default(false)
+            .prompt()
+    );
     if !check {
         return ExitCode::SUCCESS;
     }

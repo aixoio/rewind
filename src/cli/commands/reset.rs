@@ -1,4 +1,4 @@
-use crate::{check_for_git_repo, git::repo, handle_error, return_error};
+use crate::{check_for_git_repo, git::repo, handle_error, match_error};
 
 use inquire::Confirm;
 use owo_colors::OwoColorize;
@@ -7,16 +7,12 @@ use std::process::ExitCode;
 pub fn run() -> ExitCode {
     check_for_git_repo!();
 
-    let prompt = match Confirm::new("Reset Repository")
-        .with_default(false)
-        .with_help_message("This will discard all uncommitted changes. Continue?")
-        .prompt()
-    {
-        Ok(prompt) => prompt,
-        Err(err) => {
-            return_error!(err);
-        }
-    };
+    let prompt = match_error!(
+        Confirm::new("Reset Repository")
+            .with_default(false)
+            .with_help_message("This will discard all uncommitted changes. Continue?")
+            .prompt()
+    );
     if !prompt {
         return ExitCode::SUCCESS;
     }
