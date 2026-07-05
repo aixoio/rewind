@@ -2,7 +2,10 @@ use std::process::ExitCode;
 
 use crate::{
     check_for_git_repo,
-    git::stash::{fetch_stashes, parse_stashes, pop_stash},
+    git::{
+        stash::{fetch_stashes, parse_stashes, pop_stash},
+        status::{fetch_status, parse_status},
+    },
     handle_error, match_error, return_error,
 };
 
@@ -27,7 +30,16 @@ pub fn run(sub_command: Option<StashCommands>) -> ExitCode {
 }
 
 fn stash_create() -> ExitCode {
-    println!("stash create");
+    println!("{}", "Stash:".cyan().bold());
+    println!();
+
+    let status = match_error!(fetch_status());
+    let status = parse_status(&status);
+
+    if status.total_files() == 0 {
+        return_error!("no changes to stash");
+    }
+
     ExitCode::SUCCESS
 }
 
