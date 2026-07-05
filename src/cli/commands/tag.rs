@@ -111,19 +111,23 @@ fn list_tags() -> ExitCode {
     println!("{}", "Tags:".blue().bold());
 
     let stdout = match_error!(fetch_all_tags());
-    let tags: Vec<_> = parse_git_tags(&stdout).collect();
+    let tags = parse_git_tags(&stdout);
 
-    if tags.is_empty() {
-        println!("     {}", "No tags found".bright_black());
-    }
+    let mut is_empty = true;
 
     for tag in tags {
+        is_empty = false;
+
         println!(
             "     {} ({})",
             tag.name().bold(),
             tag.relative_date().bright_black()
         );
         println!("        {}", tag.subject().cyan());
+    }
+
+    if is_empty {
+        println!("     {}", "No tags found".bright_black());
     }
 
     ExitCode::SUCCESS
