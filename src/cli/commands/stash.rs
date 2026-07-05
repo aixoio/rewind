@@ -69,7 +69,13 @@ fn stash_pop() -> ExitCode {
         }
     };
 
-    println!("target: {stash:#?}");
+    println!("{}", "Latest stash:".bright_blue().bold());
+    println!(
+        "     {} {} {}",
+        stash.id().bright_black(),
+        stash.created().blue(),
+        stash.subject().bold()
+    );
 
     ExitCode::SUCCESS
 }
