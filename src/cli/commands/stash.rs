@@ -10,7 +10,7 @@ use crate::{
 };
 
 use clap::Subcommand;
-use inquire::Confirm;
+use inquire::{Confirm, Text};
 use owo_colors::OwoColorize;
 
 #[derive(Subcommand, Debug)]
@@ -51,6 +51,14 @@ fn stash_create() -> ExitCode {
     for file in files_to_commit {
         println!("     {}", file);
     }
+
+    println!();
+
+    let message =
+        match_error!(Text::new("Stash message").prompt_skippable()).unwrap_or(String::new());
+    let message = message.trim();
+
+    println!("{message:?}");
 
     ExitCode::SUCCESS
 }
