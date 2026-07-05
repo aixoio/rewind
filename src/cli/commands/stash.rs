@@ -62,9 +62,14 @@ fn stash_pop() -> ExitCode {
 
     let stashes = match_error!(fetch_stashes());
 
-    if let None = parse_stashes(&stashes).next() {
-        return_error!("no stashes to pop");
-    }
+    let stash = match parse_stashes(&stashes).next() {
+        Some(stash) => stash,
+        None => {
+            return_error!("no stashes to pop");
+        }
+    };
+
+    println!("target: {stash:#?}");
 
     ExitCode::SUCCESS
 }

@@ -4,6 +4,7 @@ use anyhow::anyhow;
 
 use crate::getter;
 
+#[derive(Debug)]
 pub struct Stash<'a> {
     id: &'a str,
     created: &'a str,
