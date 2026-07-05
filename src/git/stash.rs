@@ -1,19 +1,19 @@
 use crate::getter;
 
-pub struct Stash {
-    id: String,
-    created: String,
-    subject: String,
+pub struct Stash<'a> {
+    id: &'a str,
+    created: &'a str,
+    subject: &'a str,
 }
 
-impl Stash {
-    getter!(id, String);
-    getter!(created, String);
-    getter!(subject, String);
+impl<'a> Stash<'a> {
+    getter!(id, &'a str);
+    getter!(created, &'a str);
+    getter!(subject, &'a str);
 }
 
 /// only work with ouput from `git --no-pager stash list --pretty='format:%gd%x1f%cr%x1f%s%x1e'`
-fn parse_stashes(input: &str) -> Vec<Stash> {
+fn parse_stashes<'a>(input: &'a str) -> Vec<Stash<'a>> {
     let mut stashes = Vec::new();
 
     for record in input.split('\x1e') {
@@ -25,17 +25,17 @@ fn parse_stashes(input: &str) -> Vec<Stash> {
         let Some(id) = data.next() else {
             continue;
         };
-        let id = id.trim().to_string();
+        let id = id.trim();
 
         let Some(created) = data.next() else {
             continue;
         };
-        let created = created.trim().to_string();
+        let created = created.trim();
 
         let Some(subject) = data.next() else {
             continue;
         };
-        let subject = subject.trim().to_string();
+        let subject = subject.trim();
 
         let stash = Stash {
             id,
