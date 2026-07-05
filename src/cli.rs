@@ -13,6 +13,11 @@ use crate::cli::commands::{
 
 mod commands;
 
+/// Rewind is a small fast git-wrapper
+///
+/// Use this program to manage your Git repository
+/// with ease using a modern CLI application built
+/// with performance and usability in mind.
 #[derive(Parser)]
 #[command(version, name = "rewind")]
 pub struct Cli {
