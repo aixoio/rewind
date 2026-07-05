@@ -1,8 +1,13 @@
 use std::process::ExitCode;
 
-use crate::check_for_git_repo;
+use crate::{
+    check_for_git_repo,
+    git::stash::{fetch_stashes, parse_stashes},
+    match_error,
+};
 
 use clap::Subcommand;
+use owo_colors::OwoColorize;
 
 #[derive(Subcommand, Debug)]
 pub enum StashCommands {
@@ -26,7 +31,28 @@ fn stash_create() -> ExitCode {
 }
 
 fn stash_list() -> ExitCode {
-    println!("stash list");
+    println!("{}", "Stash list:".cyan().bold());
+
+    let stashes = match_error!(fetch_stashes());
+    let stashes = parse_stashes(&stashes);
+
+    let mut is_empty = true;
+
+    for stash in stashes {
+        is_empty = false;
+
+        println!(
+            "     {} {} {}",
+            stash.id().bright_black(),
+            stash.created().blue(),
+            stash.subject().bold()
+        );
+    }
+
+    if is_empty {
+        println!("     {}", "No stashes found".bright_black());
+    }
+
     ExitCode::SUCCESS
 }
 
