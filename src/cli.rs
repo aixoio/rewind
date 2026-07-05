@@ -33,17 +33,21 @@ pub enum Commands {
     /// pull changes from origin
     #[command(visible_alias = "pu")]
     Pull,
+    /// prints git status
     #[command(visible_alias = "s")]
     Status,
+    /// stage files to git
     #[command(visible_alias = "ad")]
     Add {
         paths: Option<Vec<String>>,
     },
+    /// commit files to git and auto stage
     #[command(visible_alias = "c")]
     Commit {
         #[arg(short, long)]
         message: Option<String>,
     },
+    /// run `git init`
     Init,
     #[command(visible_alias = "l")]
     Log {
