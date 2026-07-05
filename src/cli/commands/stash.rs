@@ -3,7 +3,7 @@ use std::process::ExitCode;
 use crate::{
     check_for_git_repo,
     git::stash::{fetch_stashes, parse_stashes},
-    match_error,
+    match_error, return_error,
 };
 
 use clap::Subcommand;
@@ -57,6 +57,14 @@ fn stash_list() -> ExitCode {
 }
 
 fn stash_pop() -> ExitCode {
-    println!("stash pop");
+    println!("{}", "Stash pop".cyan().bold());
+    println!();
+
+    let stashes = match_error!(fetch_stashes());
+
+    if let None = parse_stashes(&stashes).next() {
+        return_error!("no stashes to pop");
+    }
+
     ExitCode::SUCCESS
 }
