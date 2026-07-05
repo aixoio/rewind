@@ -14,7 +14,7 @@ use crate::cli::commands::{
 mod commands;
 
 #[derive(Parser)]
-#[command(version)]
+#[command(version, name = "rewind")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
