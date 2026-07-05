@@ -13,7 +13,7 @@ use crate::{
         repo::{add_paths, commit},
         status::{fetch_status, parse_status},
     },
-    handle_error, match_error, return_error,
+    handle_error, match_error,
 };
 
 pub fn run(message: Option<String>) -> ExitCode {
@@ -53,27 +53,19 @@ pub fn run(message: Option<String>) -> ExitCode {
 
     let message = match message {
         Some(msg) => msg,
-        None => match Text::new("Commit message:")
-            .with_validator(|s: &str| {
-                if s.trim().is_empty() {
-                    Ok(Validation::Invalid(
-                        "You must enter a commit message".into(),
-                    ))
-                } else {
-                    Ok(Validation::Valid)
-                }
-            })
-            .prompt()
-        {
-            Ok(msg) => msg,
-            Err(err) => {
-                return_error!(format!(
-                    "{} {}",
-                    "error:".bright_red().bold(),
-                    format!("failed to read commit message: {err}").bold(),
-                ));
-            }
-        },
+        None => match_error!(
+            Text::new("Commit message:")
+                .with_validator(|s: &str| {
+                    if s.trim().is_empty() {
+                        Ok(Validation::Invalid(
+                            "You must enter a commit message".into(),
+                        ))
+                    } else {
+                        Ok(Validation::Valid)
+                    }
+                })
+                .prompt()
+        ),
     };
 
     handle_error!(commit(&message));
