@@ -27,8 +27,10 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
+    /// push changes to origin
     #[command(alias = "p")]
     Push,
+    /// pull changes from origin
     #[command(alias = "pu")]
     Pull,
     #[command(alias = "s")]
