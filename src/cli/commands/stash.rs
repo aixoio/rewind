@@ -3,7 +3,7 @@ use std::process::ExitCode;
 use crate::{
     check_for_git_repo,
     git::{
-        stash::{fetch_stashes, parse_stashes, pop_stash},
+        stash::{fetch_stashes, parse_stashes, pop_stash, push_stash},
         status::{fetch_status, parse_status},
     },
     handle_error, match_error, return_error,
@@ -58,7 +58,18 @@ fn stash_create() -> ExitCode {
         match_error!(Text::new("Stash message").prompt_skippable()).unwrap_or(String::new());
     let message = message.trim();
 
-    println!("{message:?}");
+    println!();
+
+    handle_error!(push_stash(message));
+
+    println!("{}", "Stash successful!".bright_green().bold());
+    if !message.is_empty() {
+        println!(
+            "{} {}",
+            "Message:".bright_black().bold(),
+            message.bright_black()
+        );
+    }
 
     ExitCode::SUCCESS
 }
