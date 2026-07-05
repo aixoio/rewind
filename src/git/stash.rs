@@ -36,7 +36,7 @@ pub fn fetch_stashes() -> anyhow::Result<String> {
 }
 
 /// only work with ouput from `git --no-pager stash list --pretty='format:%gd%x1f%cr%x1f%s%x1e'`
-fn parse_stashes<'a>(input: &'a str) -> impl Iterator<Item = Stash<'a>> + 'a {
+pub fn parse_stashes<'a>(input: &'a str) -> impl Iterator<Item = Stash<'a>> + 'a {
     input.split('\x1e').filter_map(|record| {
         if record.is_empty() {
             return None;
