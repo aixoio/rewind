@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use anyhow::anyhow;
 
@@ -37,7 +37,11 @@ pub fn fetch_stashes() -> anyhow::Result<String> {
 }
 
 pub fn pop_stash() -> anyhow::Result<String> {
-    let output = Command::new("git").arg("stash").arg("pop").output()?;
+    let output = Command::new("git")
+        .arg("stash")
+        .arg("pop")
+        .stdout(Stdio::inherit())
+        .output()?;
     let stdout = String::from_utf8(output.stdout)?;
 
     if !output.status.success() {

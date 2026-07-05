@@ -2,8 +2,8 @@ use std::process::ExitCode;
 
 use crate::{
     check_for_git_repo,
-    git::stash::{fetch_stashes, parse_stashes},
-    match_error, return_error,
+    git::stash::{fetch_stashes, parse_stashes, pop_stash},
+    handle_error, match_error, return_error,
 };
 
 use clap::Subcommand;
@@ -88,6 +88,10 @@ fn stash_pop() -> ExitCode {
     if !check {
         return ExitCode::SUCCESS;
     }
+
+    handle_error!(pop_stash());
+
+    println!("{}", "Stash applied successfully!".bright_green().bold());
 
     ExitCode::SUCCESS
 }
