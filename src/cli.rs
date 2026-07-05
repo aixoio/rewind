@@ -28,54 +28,54 @@ pub struct Cli {
 #[derive(Subcommand)]
 pub enum Commands {
     /// push changes to origin
-    #[command(alias = "p")]
+    #[command(visible_alias = "p")]
     Push,
     /// pull changes from origin
-    #[command(alias = "pu")]
+    #[command(visible_alias = "pu")]
     Pull,
-    #[command(alias = "s")]
+    #[command(visible_alias = "s")]
     Status,
-    #[command(alias = "ad")]
+    #[command(visible_alias = "ad")]
     Add {
         paths: Option<Vec<String>>,
     },
-    #[command(alias = "c")]
+    #[command(visible_alias = "c")]
     Commit {
         #[arg(short, long)]
         message: Option<String>,
     },
     Init,
-    #[command(alias = "l")]
+    #[command(visible_alias = "l")]
     Log {
         #[arg(short, long)]
         limit: Option<usize>,
         #[arg(long)]
         show_all: bool,
     },
-    #[command(alias = "d")]
+    #[command(visible_alias = "d")]
     Diff {
         #[arg(short, long, conflicts_with = "args")]
         stat: bool,
         #[arg(trailing_var_arg = true, conflicts_with = "stat")]
         args: Option<Vec<String>>,
     },
-    #[command(alias = "b")]
+    #[command(visible_alias = "b")]
     Branch {
         name: Option<String>,
         #[command(subcommand)]
         sub_command: Option<BranchCommands>,
     },
-    #[command(alias = "m")]
+    #[command(visible_alias = "m")]
     Merge {
         source: String,
         target: String,
     },
-    #[command(alias = "co")]
+    #[command(visible_alias = "co")]
     Checkout {
         target: String,
     },
     Reset,
-    #[command(alias = "t")]
+    #[command(visible_alias = "t")]
     Tag {
         #[command(subcommand)]
         command: TagCommand,
