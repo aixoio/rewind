@@ -85,8 +85,10 @@ pub enum Commands {
         /// target branch
         target: String,
     },
+    /// checkout a branch or commit
     #[command(visible_alias = "co")]
     Checkout {
+        /// target branch or commit
         target: String,
     },
     Reset,
