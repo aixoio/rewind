@@ -46,7 +46,7 @@ rw --version
 ```
 
 ## Usage
-Rewind offers many command and sub commands you can
+Rewind offers many commands and sub-commands you can
 use to manage your projects while being fully compatable
 with git.
 
