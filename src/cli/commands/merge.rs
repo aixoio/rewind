@@ -15,21 +15,11 @@ pub fn run(source: String, target: String) -> ExitCode {
     check_for_git_repo!();
 
     if !branch_exists(&source) {
-        return_error!(format!(
-            "{} {} {}",
-            "branch".red(),
-            source.bright_red().bold(),
-            "does not exist".red()
-        ));
+        return_error!(format!("{} {} {}", "branch", source, "does not exist"));
     }
 
     if !branch_exists(&target) {
-        return_error!(format!(
-            "{} {} {}",
-            "branch".red(),
-            target.bright_red().bold(),
-            "does not exist".red()
-        ));
+        return_error!(format!("{} {} {}", "branch", target, "does not exist"));
     }
 
     let Ok(current_branch) = current_branch() else {
