@@ -29,10 +29,7 @@ pub fn fetch_status() -> anyhow::Result<String> {
     let stdout = String::from_utf8(output.stdout)?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(stdout)
