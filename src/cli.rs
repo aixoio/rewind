@@ -49,10 +49,13 @@ pub enum Commands {
     },
     /// run `git init`
     Init,
+    /// display commit history
     #[command(visible_alias = "l")]
     Log {
+        /// limit results (default=10)
         #[arg(short, long)]
         limit: Option<usize>,
+        /// print all commits
         #[arg(long)]
         show_all: bool,
     },
