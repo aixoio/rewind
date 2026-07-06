@@ -17,10 +17,7 @@ pub fn add_paths<S: AsRef<str>>(paths: &[S]) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -34,10 +31,7 @@ pub fn commit(message: &str) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -47,10 +41,7 @@ pub fn init_repo() -> anyhow::Result<()> {
     let output = Command::new("git").arg("init").output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -76,10 +67,7 @@ where
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -89,10 +77,7 @@ pub fn checkout(target: &str) -> anyhow::Result<()> {
     let output = Command::new("git").arg("checkout").arg(target).output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -102,10 +87,7 @@ pub fn merge(source: &str) -> anyhow::Result<()> {
     let output = Command::new("git").arg("merge").arg(source).output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -115,10 +97,7 @@ pub fn reset() -> anyhow::Result<()> {
     let output = Command::new("git").arg("reset").arg("--hard").output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -132,10 +111,7 @@ pub fn revert(hash: &str) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
