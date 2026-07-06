@@ -59,12 +59,7 @@ fn branch_delete(name: String, remote: bool) -> ExitCode {
     }
 
     if !branch_exists(&name) {
-        return_error!(format!(
-            "{}",
-            "cannot delete branch as it does not exist"
-                .bright_red()
-                .bold()
-        ));
+        return_error!("cannot delete branch as it does not exist");
     }
 
     let message = if remote {
