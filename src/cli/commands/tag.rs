@@ -16,15 +16,22 @@ use crate::{
 
 #[derive(Subcommand, Debug)]
 pub enum TagCommand {
+    /// list all tags
     List,
+    /// create a new tag
     Create {
+        /// tag name
         name: String,
+        /// tag message
         #[arg(short, long)]
         message: Option<String>,
     },
+    /// delete a tag
     Delete {
+        /// tag name
         name: String,
     },
+    /// push all tags to remote
     Push,
 }
 

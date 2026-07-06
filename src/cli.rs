@@ -93,6 +93,7 @@ pub enum Commands {
     },
     /// discard all uncommited changes
     Reset,
+    /// manage git tags
     #[command(visible_alias = "t")]
     Tag {
         #[command(subcommand)]
