@@ -9,10 +9,7 @@ pub fn current_branch() -> anyhow::Result<String> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(String::from_utf8(output.stdout)?.trim().to_string())
@@ -27,10 +24,7 @@ pub fn all_branches() -> anyhow::Result<String> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(String::from_utf8(output.stdout)?)
@@ -58,10 +52,7 @@ pub fn create_branch(branch: &str) -> anyhow::Result<()> {
     let output = Command::new("git").arg("branch").arg(branch).output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -75,10 +66,7 @@ pub fn delete_branch(branch: &str) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
@@ -93,10 +81,7 @@ pub fn delete_remote_branch(branch: &str) -> anyhow::Result<()> {
         .output()?;
 
     if !output.status.success() {
-        return Err(anyhow!(
-            "error: git: {}",
-            String::from_utf8_lossy(&output.stderr)
-        ));
+        return Err(anyhow!("git: {}", String::from_utf8_lossy(&output.stderr)));
     }
 
     Ok(())
