@@ -59,10 +59,13 @@ pub enum Commands {
         #[arg(long)]
         show_all: bool,
     },
+    /// display `git diff`
     #[command(visible_alias = "d")]
     Diff {
+        /// display `git diff --stat`, not compatable with args
         #[arg(short, long, conflicts_with = "args")]
         stat: bool,
+        /// args passed to `git diff`, not compatable with stat
         #[arg(trailing_var_arg = true, conflicts_with = "stat")]
         args: Option<Vec<String>>,
     },
