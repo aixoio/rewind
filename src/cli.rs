@@ -77,9 +77,12 @@ pub enum Commands {
         #[command(subcommand)]
         sub_command: Option<BranchCommands>,
     },
+    /// merge 2 branch
     #[command(visible_alias = "m")]
     Merge {
+        /// source branch
         source: String,
+        /// target branch
         target: String,
     },
     #[command(visible_alias = "co")]
