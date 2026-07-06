@@ -38,9 +38,7 @@ pub enum Commands {
     Status,
     /// stage files to git
     #[command(visible_alias = "ad")]
-    Add {
-        paths: Option<Vec<String>>,
-    },
+    Add { paths: Option<Vec<String>> },
     /// commit files to git and auto stage
     #[command(visible_alias = "c")]
     Commit {
@@ -99,7 +97,9 @@ pub enum Commands {
         #[command(subcommand)]
         command: TagCommand,
     },
+    /// revert changes made in a commit
     Revert {
+        /// target commit
         hash: String,
     },
     Stash {
