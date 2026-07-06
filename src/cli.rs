@@ -69,8 +69,10 @@ pub enum Commands {
         #[arg(trailing_var_arg = true, conflicts_with = "stat")]
         args: Option<Vec<String>>,
     },
+    /// manage git branches
     #[command(visible_alias = "b")]
     Branch {
+        /// create a new branch with the name
         name: Option<String>,
         #[command(subcommand)]
         sub_command: Option<BranchCommands>,

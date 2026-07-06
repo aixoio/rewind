@@ -19,8 +19,11 @@ use clap::Subcommand;
 
 #[derive(Subcommand)]
 pub enum BranchCommands {
+    /// delete a branch
     Delete {
+        /// branch name
         name: String,
+        /// if it's remote
         #[arg(long)]
         remote: bool,
     },
