@@ -102,6 +102,7 @@ pub enum Commands {
         /// target commit
         hash: String,
     },
+    /// manage stashes
     Stash {
         #[command(subcommand)]
         sub_command: Option<StashCommands>,

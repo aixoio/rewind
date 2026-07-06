@@ -15,7 +15,9 @@ use owo_colors::OwoColorize;
 
 #[derive(Subcommand, Debug)]
 pub enum StashCommands {
+    /// list all stashes
     List,
+    /// pop the newest stash
     Pop,
 }
 
