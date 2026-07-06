@@ -91,6 +91,7 @@ pub enum Commands {
         /// target branch or commit
         target: String,
     },
+    /// discard all uncommited changes
     Reset,
     #[command(visible_alias = "t")]
     Tag {
