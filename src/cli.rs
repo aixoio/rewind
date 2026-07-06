@@ -103,6 +103,9 @@ pub enum Commands {
         hash: String,
     },
     /// manage stashes
+    ///
+    /// when ran without a sub command it
+    /// will create a new stash
     Stash {
         #[command(subcommand)]
         sub_command: Option<StashCommands>,
