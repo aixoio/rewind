@@ -9,7 +9,7 @@ use crate::{
     check_for_git_repo,
     git::tag::{
         self, create_annotated_tag, create_lightweight_tag, fetch_all_tags, parse_git_tags,
-        push_all_tags,
+        pull_all_tags, push_all_tags,
     },
     handle_error, match_error,
 };
@@ -33,6 +33,8 @@ pub enum TagCommand {
     },
     /// push all tags to remote
     Push,
+    /// pull all tags from remote
+    Pull,
 }
 
 pub fn run(command: TagCommand) -> ExitCode {
@@ -43,7 +45,18 @@ pub fn run(command: TagCommand) -> ExitCode {
         TagCommand::Create { name, message } => create_tag(name, message),
         TagCommand::Delete { name } => delete_tag(name),
         TagCommand::Push => push_tags(),
+        TagCommand::Pull => pull_tags(),
     }
+}
+
+fn pull_tags() -> ExitCode {
+    println!("{}", "Pulling all tags".green());
+
+    handle_error!(pull_all_tags());
+
+    println!("{}", "All tags pulled!".bright_green(),);
+
+    ExitCode::SUCCESS
 }
 
 fn push_tags() -> ExitCode {

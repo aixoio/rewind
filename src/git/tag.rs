@@ -90,6 +90,25 @@ pub fn push_all_tags() -> anyhow::Result<()> {
     Ok(())
 }
 
+pub fn pull_all_tags() -> anyhow::Result<()> {
+    let output = Command::new("git")
+        .arg("fetch")
+        .arg("--tags")
+        .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
+        .stdin(Stdio::inherit())
+        .output()?;
+
+    if !output.status.success() {
+        return Err(anyhow!(
+            "error: git: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
+    }
+
+    Ok(())
+}
+
 pub fn delete_tag(name: &str) -> anyhow::Result<()> {
     let output = Command::new("git")
         .arg("tag")
