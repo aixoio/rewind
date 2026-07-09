@@ -49,7 +49,7 @@ pub fn fetch_log() -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
         .arg("--reverse")
-        .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
+        .arg("--pretty=format:%h%x1f%cI%x1f%D%x1f%s%x1e")
         .output()?;
     let stdout = String::from_utf8(output.stdout)?;
 
@@ -64,7 +64,7 @@ pub fn fetch_log_with_limit(limit: usize) -> anyhow::Result<String> {
     let output = Command::new("git")
         .arg("log")
         .arg("--reverse")
-        .arg("--pretty=format:%H%x1f%cI%x1f%D%x1f%s%x1e")
+        .arg("--pretty=format:%h%x1f%cI%x1f%D%x1f%s%x1e")
         .arg("-n")
         .arg(limit.to_string())
         .output()?;

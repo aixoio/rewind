@@ -35,14 +35,16 @@ pub fn run(limit: Option<usize>, show_all: bool) -> ExitCode {
     println!();
 
     for commit in commits {
-        let short_hash = &commit.hash()[..7];
-
         if commit.refs().is_empty() {
-            println!("{} {}", short_hash.bright_black(), commit.subject().bold());
+            println!(
+                "{} {}",
+                commit.hash().bright_black(),
+                commit.subject().bold()
+            );
         } else {
             println!(
                 "{} {} {}",
-                short_hash.bright_black(),
+                commit.hash().bright_black(),
                 commit.subject().bold(),
                 commit.refs().blue(),
             );
