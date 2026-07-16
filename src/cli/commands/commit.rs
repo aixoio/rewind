@@ -13,7 +13,7 @@ use crate::{
         repo::{add_paths, commit},
         status::{fetch_status, parse_status},
     },
-    handle_error, match_error,
+    handle_error, match_error, return_error,
 };
 
 pub fn run(message: Option<String>) -> ExitCode {
@@ -31,6 +31,10 @@ pub fn run(message: Option<String>) -> ExitCode {
     let status = match_error!(fetch_status());
 
     let status = parse_status(&status);
+
+    if status.staged().is_empty() {
+        return_error!("no files to be staged");
+    }
 
     println!("{}:", "Files to be committed".bright_green().bold());
 
