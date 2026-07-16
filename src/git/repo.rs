@@ -1,13 +1,20 @@
 use std::{
     ffi::OsStr,
-    path::Path,
     process::{Command, Stdio},
 };
 
 use anyhow::anyhow;
 
 pub fn is_git_repo() -> bool {
-    Path::new(".git").exists()
+    let Ok(output) = Command::new("git")
+        .arg("rev-parse")
+        .arg("--is-inside-work-tree")
+        .status()
+    else {
+        return false;
+    };
+
+    output.success()
 }
 
 pub fn add_paths<S: AsRef<str>>(paths: &[S]) -> anyhow::Result<()> {
