@@ -9,6 +9,9 @@ pub fn is_git_repo() -> bool {
     let Ok(output) = Command::new("git")
         .arg("rev-parse")
         .arg("--is-inside-work-tree")
+        .stderr(Stdio::null())
+        .stdin(Stdio::null())
+        .stdout(Stdio::null())
         .status()
     else {
         return false;
